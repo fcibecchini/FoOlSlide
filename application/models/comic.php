@@ -7,7 +7,7 @@ class Comic extends DataMapper
 {
 
 	static $cached = array();
-	var $has_one = array();
+	var $has_one = array('typeh', 'jointag');
 	var $has_many = array('chapter', 'license');
 	var $validation = array(
 		'name' => array(
@@ -18,9 +18,9 @@ class Comic extends DataMapper
 		),
 		'stub' => array(
 			'rules' => array('stub', 'unique', 'max_length' => 256),
-			'label' => 'URL Slug',
-			'type' => 'input',
-			'class' => 'uneditable-input jqslug'
+ 			'label' => 'URL Slug',
+ 			'type' => 'input',
+ 			'class' => 'uneditable-input jqslug'
 		),
 		'uniqid' => array(
 			'rules' => array('required', 'max_length' => 256),
@@ -35,6 +35,25 @@ class Comic extends DataMapper
 			'rules' => array(),
 			'label' => 'Artist',
 			'type' => 'input'
+		),
+		'typeh_id' => array(
+			'rules' => array('is_int', 'required', 'max_length' => 256),
+			'label' => 'Type ID',
+			'type' => 'hidden'
+		),
+		'parody' => array(
+			'rules' => array(),
+			'label' => 'Parody',
+			'type' => 'input'
+		),
+		'urlforum' => array(
+			'rules' => array(),
+			'label' => 'Topic Link',
+			'type' => 'input'
+		),
+		'jointag_id' => array(
+			'rules' => array('is_int', 'max_length' => 256),
+			'label' => 'Jointag ID'
 		),
 		'description' => array(
 			'rules' => array(),
@@ -82,7 +101,17 @@ class Comic extends DataMapper
 		'editor' => array(
 			'rules' => array(''),
 			'label' => 'Editor'
-		)
+		),
+		'author_stub' => array(
+			'rules' => array('stub', 'max_length' => 256),
+			'label' => 'author stub',
+			'type' => 'hidden'
+		),
+		'parody_stub' => array(
+			'rules' => array('stub', 'max_length' => 256),
+			'label' => 'parody stub',
+			'type' => 'hidden'
+		)		
 	);
 
 	function __construct($id = NULL)
@@ -140,6 +169,10 @@ class Comic extends DataMapper
 		$this->validation['author']['help'] = _('Insert the author of this title.');
 		$this->validation['artist']['label'] = _('Artist');
 		$this->validation['artist']['help'] = _('Insert the artist of this title.');
+		$this->validation['parody']['label'] = _('Parody');
+		$this->validation['parody']['help'] = _('The original series on which the parody is based.');
+		$this->validation['urlforum']['label'] = _('Forum link');
+		$this->validation['urlforum']['help'] = _('The forum thread where this work was posted, if any.');
 		$this->validation['description']['label'] = _('Description');
 		$this->validation['description']['help'] = _('Insert a description.');
 		$this->validation['adult']['label'] = _('Adult Notice');
@@ -151,7 +184,10 @@ class Comic extends DataMapper
 		$this->validation['thumbnail']['help'] = _('Upload an image to use as thumbnail.');
 		$this->validation['customchapter']['label'] = _('Custom Chapter Title');
 		$this->validation['customchapter']['help'] = _('Replace the default chapter title with a custom format. Example: "{num}{ord} Stage" returns "2nd Stage"');
+		$this->validation['stub']['label'] = _('URL Slug');
+		
 	}
+
 
 	/**
 	 * Overwrite of the get() function to add filters to the search.
@@ -176,7 +212,7 @@ class Comic extends DataMapper
 		$result = parent::get($limit, $offset);
 
 		$this->get_licenses();
-
+		
 		$CI = & get_instance();
 
 		if (!$CI->tank_auth->is_allowed() && !$CI->tank_auth->is_team())
@@ -209,6 +245,50 @@ class Comic extends DataMapper
 
 		return $result;
 	}
+	
+	public function get_hidden($limit = NULL, $offset = NULL)
+	{
+		// Get the CodeIgniter instance, since it isn't set in this file.
+		$CI = & get_instance();
+	
+		$result = parent::get($limit, $offset);
+	
+		$this->get_licenses();
+			
+		$CI = & get_instance();
+	
+		if (!$CI->tank_auth->is_allowed() && !$CI->tank_auth->is_team())
+		{
+			// Remove from the array the serie licensed in the user's nation
+			foreach ($this->all as $key => $item)
+			{
+				if (in_array($CI->session->userdata('nation'), $this->licenses))
+				{
+					unset($this->all[$key]);
+				}
+			}
+			if (in_array($CI->session->userdata('nation'), $this->licenses))
+			{
+				$this->clear();
+			}
+		}
+	
+		// let's put the result in a small cache, since teams are always the same
+		foreach ($this->all as $comic)
+		{
+			// if it's not yet cached, let's cache it
+			if (!$this->get_cached($comic->id))
+			{
+				if (count(self::$cached) > 10)
+					array_shift(self::$cached);
+				self::$cached[] = $comic->get_clone();
+			}
+		}
+	
+		return $result;
+	}
+	
+	
 
 
 	/**
@@ -310,6 +390,38 @@ class Comic extends DataMapper
 		return true;
 	}
 
+	public function get_tags()
+	{
+		if (isset($this->tags))
+			return true;
+		$tags = new Tag();
+		$this->tags = $tags->get_tags($this->jointag_id);
+		foreach ($this->all as $item)
+		{
+			if (isset($item->tags))
+				continue;
+			$tags = new Tag();
+			$item->tags = $tags->get_tags($item->jointag_id);
+		}
+		
+		// All good, return true.
+		return true;
+	}
+	
+	public function get_comics($tag_id) {
+		$jointags = new Jointag();
+		$jointags->where('tag_id', $tag_id)->get();
+		if ($jointags->result_count() > 0)
+		{
+			foreach ($jointags as $j)
+			{
+				$this->or_where('jointag_id', $j->jointag_id);
+			}
+			$this->order_by('created', 'DESC')->get();
+		}
+		return $this;
+	}
+
 
 	/**
 	 * Function to create a new entry for a series from scratch. It creates
@@ -327,11 +439,12 @@ class Comic extends DataMapper
 		$this->to_stub = $data['name'];
 		// Uniqid to prevent directory clash
 		$this->uniqid = uniqid();
-
+		
 		// in case the user specified a stub
-		if (array_key_exists('has_custom_slug', $data) && $data['has_custom_slug'] == 1 
+		if (array_key_exists('has_custom_slug', $data) && $data['has_custom_slug'] == 1
 			&& isset($data['stub']) && $data['stub'] != '')
 			$this->to_stub = $data['stub'];
+				
 		
 		// stub() checks for to_stub and makes a stub.
 		$this->stub = $this->stub();
@@ -419,6 +532,11 @@ class Comic extends DataMapper
 			// Save the stub in a variable in case it gets changed, so we can change folder name
 			$old_stub = $this->stub;
 			$old_name = $this->name;
+			
+			// Save the parody and author in a variable in case they get changed, so we can change their stubs
+			if ($this->author) $old_author = $this->author;
+			if ($this->parody) $old_parody = $this->parody;
+			
 		}
 		else
 		{
@@ -437,6 +555,7 @@ class Comic extends DataMapper
 		unset($data["uniqid"]);
 		unset($data["has_custom_slug"]);
 		unset($data["stub"]);
+		unset($data["jointag_id"]);
 
 		// Allow only admins and mods to arbitrarily change the release date
 		$CI = & get_instance();
@@ -448,7 +567,8 @@ class Comic extends DataMapper
 		// Loop over the array and assign values to the variables.
 		foreach ($data as $key => $value)
 		{
-			$this->$key = $value;
+			if (($key !== 'tags') || ($key !== 'parody')) 
+				$this->$key = $value;
 		}
 
 		// Double check that we have all the necessary automated variables
@@ -465,13 +585,14 @@ class Comic extends DataMapper
 			// stub() is also able to restub the $this->stub. Already stubbed values won't change.
 			$this->stub = $this->stub();
 		}
-
+		
 		// stub changed by user
 		if ($has_custom_slug & $input_stub != "" && ($this->stub != $input_stub || (isset($old_stub) && $old_stub != $input_stub)))
 		{
 			$this->stub = $input_stub;
 			$this->stub = $this->stub();
 		}
+
 
 		// Make so there's no intersecting stubs, and make a stub with a number in case of duplicates
 		// In case this chapter already has a stub and it wasn't changed, don't change it!
@@ -500,6 +621,71 @@ class Comic extends DataMapper
 				}
 			}
 		}
+		
+		// Remove any withespace at the beginning of the parody field
+		if (isset($data['parody'])) 
+		{
+			$this->parody = ltrim($data['parody']);
+		}
+		
+		// Check stubs for author and parody if set
+		if ($this->parody && !$this->parody_stub)
+		{
+			$new_parody_stub = $this->stub_field("parody");
+			$this->parody_stub = $new_parody_stub;
+		}
+		
+		if ($this->author && !$this->author_stub)
+		{
+			$new_author_stub = $this->stub_field("author");
+			$this->author_stub = $new_author_stub;
+		}
+		
+		// Create a new stub for parody and author if their names have changed
+		if (isset($old_author) && ($old_author != $this->author))
+		{
+			$new_author_stub = $this->stub_field("author");
+			$this->author_stub = $new_author_stub;
+		}
+		
+		if (isset($old_parody) && ($old_parody != $this->parody))
+		{
+			$new_parody_stub = $this->stub_field("parody");
+			$this->parody_stub = $new_parody_stub;
+		}
+		
+		// $data['tag'] is an array of tags numbers (0->"", 1->First Tag of the list ordered by name)
+		if (isset($data['tags']))
+		{
+			// Remove the empty values in the array of tag names.
+			// It happens that the POST contains extra empty values.
+			if (is_array($data['tags']))
+			{
+				foreach ($data['tags'] as $key => $value)
+				{
+					if ($value == 0)
+					{
+						unset($data['tags'][$key]);
+					}
+				}
+				sort($data["tags"]);
+			}
+			
+			if (empty($data['tags']))
+				$this->jointag_id = 0;
+			else 
+			{
+					// Worry that the tag names must exist.
+				$jointag = new Jointag ();
+				// If the search returns false, something went wrong.
+				// GUI errors are inside the function.
+				if (! $this->jointag_id = $jointag->add_jointag_via_name ( $data ['tags'] )) {
+					log_message ( 'error', 'update_comic_db: error with jointag_id' );
+					return false;
+				}
+			}
+		}
+
 
 		// This is necessary to make the checkbox work.
 		/**
@@ -566,6 +752,16 @@ class Comic extends DataMapper
 		foreach ($chapters as $chapter)
 		{
 			$chapter->remove_chapter_db();
+		}
+		
+		// Get Jointag and delete it
+		$jointag = new Jointag();
+		$jointag->where('jointag_id', $this->jointag_id)->get();
+		if (!$jointag->remove_jointag())
+		{
+			set_notice('error', _('The jointag of the serie couldn\'t be removed.'));
+			log_message('error', 'remove_jointag: failed deleting');
+			return false;
 		}
 
 		// We need a clone if we want to keep the variables after deletion
@@ -1019,6 +1215,21 @@ class Comic extends DataMapper
 	{
 		return $this->name;
 	}
+	
+	public function author()
+	{
+		return $this->author;
+	}
+	
+	public function author_url() 
+	{
+		return site_url('author/' . str_replace(' ', '_', $this->author));
+	}
+	
+	public function comments($class = '') {
+		if ($this->urlforum)
+			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->urlforum . '" target="_blank"><i class="fa fa-comments-o"></i></a></div>';
+	}
 
 
 	/**
@@ -1076,6 +1287,21 @@ class Comic extends DataMapper
 		$result["fullsized_thumb_url"] = $this->get_thumb(true);
 		$result["href"] = $this->href();
 		return $result;
+	}
+	
+	/**
+	 * Update a stub field.
+	 *
+	 * @author	Gevanni
+	 * @param 	string $field the field to stub
+	 * @param 	string $original_field the input field to make the stub
+	 * @return  boolean true on success, false on failure.
+	 */
+	public function update_field_stub($field, $original_field) {
+		$new_value = $this->stub_field($original_field);
+		$this->$field = $new_value;
+		$success = $this->save();
+		return $success;
 	}
 
 }

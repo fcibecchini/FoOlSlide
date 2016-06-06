@@ -6,21 +6,36 @@ if (!defined('BASEPATH'))
 if (!function_exists('tabler'))
 {
 
-	function tabler($rows, $list = TRUE, $edit = TRUE, $repopulate = FALSE)
+	function tabler($rows, $list = TRUE, $edit = TRUE, $repopulate = FALSE, $search = FALSE)
 	{
 		$result = array();
 		$CI = & get_instance();
-
-		$rows[] = array(
-			"",
-			array(
-				'type' => 'submit',
-				'name' => 'submit',
-				'class' => 'btn primary',
-				'id' => 'submit',
-				'value' => _('Save')
-			)
-		);
+		
+		if ($search) {
+			$rows [] = array (
+					"",
+					array (
+						'type' => 'submit',
+						'name' => 'submit',
+						'class' => 'btn btn-success form-control',
+						'id' => 'submitn',
+						'value' => _('Search') 
+					) 
+			);
+		}
+		 
+		else {
+			$rows[] = array(
+					"",
+					array(
+						'type' => 'submit',
+						'name' => 'submit',
+						'class' => 'btn btn-success form-control',
+						'id' => 'submitn',
+						'value' => _('Save')
+					)
+			);
+		}
 
 		$echo = "";
 
@@ -101,16 +116,19 @@ if (!function_exists('tabler'))
 							if ($colk == 0)
 							{
 								$echo .= '<label for="' . $column['field'] . '">' . $column['table'] . '</label>';
-								$echo .= '<div class="input">';
+								$echo .= '<div class="input form-group">';
 							}
 							else
 							{
 								$echo .= '<span class="uneditable-input">';
 								if (is_array($column['table']))
 								{
-									foreach ($column['table'] as $mini)
+									foreach ($column['table'] as $kk => $mini)
 									{
-										$echo .= '' . $mini->name . ' ';
+										if (!isset($mini->name))
+											$echo .= '' . $kk . ' ';
+										else
+											$echo .= '' . $mini->name . ' ';
 									}
 								}
 								else if ($column['table'] == "")
@@ -119,7 +137,7 @@ if (!function_exists('tabler'))
 								}
 								else
 								{
-									if ($column['type'] == 'dropdowner' || $column['type'] == 'checkbox')
+									if ($column['type'] == 'dropdowner' || $column['type'] == 'checkbox' || $column['type'] == 'tag')
 									{
 										$echo .= $column['value'][$column['table']];
 									}
@@ -140,7 +158,7 @@ if (!function_exists('tabler'))
 		}
 		elseif ($list)
 		{
-			$echo .= '<div class="plain"><table class="zebra-striped" rules="rows">';
+			$echo .= '<div class="plain table-responsive"><table class="table table-striped" rules="rows">';
 			foreach ($result as $rowk => $row)
 			{
 				if (isset($row[1]['type']) && $row[1]['type'] == 'hidden')
@@ -192,7 +210,7 @@ if (!function_exists('tabler'))
 				}
 				else
 				{
-					$echo .= '<div class="clearfix">';
+					$echo .= '<div class="clearfix form-group">';
 					foreach ($row as $colk => $column)
 					{
 						if ($colk == 0)
@@ -242,6 +260,8 @@ if (!function_exists('formize'))
 					$column['checked'] = 'checked';
 				$column['value'] = 1;
 			}
+		} else if (! ($column ['type'] == 'submit')) {
+			$column ['class'] = 'form-control';
 		}
 
 		$formize = 'form_' . $column['type'];
@@ -376,7 +396,7 @@ function writize($column)
 			$column['value'] .= $nations[$num];
 		}
 	}
-
+	
 	return $column['value'];
 }
 
@@ -494,6 +514,25 @@ if (!function_exists('form_nation'))
 
 }
 
+if (!function_exists('form_tag'))
+{
+
+	function form_tag($column)
+	{	
+		if (isset($column['onKeyUp']))
+		{
+			$column['onChange'] = 'onChange="' . $column['onKeyUp'] . '"';
+			unset($column['onKeyUp']);
+		}
+		else
+			$column['onChange'] = '';
+		return form_dropdown($column['name'], $column['values'], $column['value'], $column['onChange']);
+	}
+
+
+}
+
+
 if (!function_exists('form_language'))
 {
 
@@ -502,7 +541,7 @@ if (!function_exists('form_language'))
 		$lang = config_item('fs_languages');
 		if (!isset($column['value']) || $column['value'] == "")
 			$column['value'] = get_setting('fs_gen_default_lang');
-		return form_dropdown($column['name'], $lang, $column['value']);
+		return form_dropdown($column['name'], $lang, $column['value'], array('class' => 'form-control'));
 	}
 
 
@@ -524,7 +563,7 @@ if (!function_exists('form_themes'))
 				$set[$item] = $item;
 			}
 		}
-		return form_dropdown($column['name'], $set, $column['value']);
+		return form_dropdown($column['name'], $set, $column['value'], array('class' => 'form-control'));
 	}
 
 
@@ -618,39 +657,54 @@ if (!function_exists('prevnext'))
 
 	function prevnext($base_url, $item)
 	{
+
 		$echo = "";
-
-		if (!isset($item))
-			return $echo;
-
-		if (isset($item->paged) && 
-			((property_exists($item->paged, "has_previous") 
-				&& $item->paged->has_previous) || (property_exists($item->paged, "has_next") && $item->paged->has_next)))
+	
+		if ($item->paged->total_pages > 1)
 		{
-			$echo .= '<div class="prevnext">';
-
-			if ($item->paged->has_previous)
-			{
-				$echo .= '<div class="prev">
-						<a class="gbutton fleft" href="' . site_url($base_url . '1') . '">«« ' . _('First') . '</a>
-						<a class="gbutton fleft" href="' . site_url($base_url . $item->paged->previous_page) . '">« ' . _('Prev') . '</a>
-					</div>';
-			}
-
-			if ($item->paged->has_next)
-			{
-				$echo .= '<div class="next">
-						<a class="gbutton fright" href="' . site_url($base_url . $item->paged->total_pages) . '">' . _('Last') . ' »»</a>
-						<a class="gbutton fright" href="' . site_url($base_url . $item->paged->next_page) . '">' . _('Next') . ' »</a>
-					</div>';
-			}
-
-			$echo .= '<div class="clearer"></div></div>';
+				$echo .= '<div class="prevnext" style="margin-bottom: -5px">';				
+				if ($item->paged->has_previous)
+				{
+					$echo .= '<div class="prev"><a class="gbutton fleft" href="' . site_url($base_url . 1) . '">««</a></div>';
+					$echo .= '<div class="prev"><a class="gbutton fleft" href="' . site_url($base_url . $item->paged->previous_page) . '">« ' . _('Prev') . '</a></div>';
+				}
+				
+				if ($item->paged->current_page < 3)
+				{
+					$page = 1;
+					while ($page <= 4)
+					{
+						if ($page > $item->paged->total_pages)
+							break;
+						if ($item->paged->current_page == $page)
+							$echo .= '<div class="next"><a class="gbuttonactive fleft" href="#">' . $page . '</a></div>';
+						else
+							$echo .= '<div class="next"><a class="gbutton fleft" href="' . site_url($base_url .$page) .'">' . $page . '</a></div>';
+						$page++;
+					}
+				}
+				
+				if ($item->paged->current_page >= 3)
+				{
+					$last = (($item->paged->current_page + 2) > $item->paged->total_pages) ? $item->paged->total_pages : $item->paged->current_page + 2;
+					for ($i = ($item->paged->current_page - 2); $i <= $last; $i++)
+					{
+						if ($item->paged->current_page == $i)
+							$echo .= '<div class="next"><a class="gbuttonactive fleft" href="#">' . $i . '</a></div>';
+						else
+							$echo .= '<div class="next"><a class="gbutton fleft" href="' . site_url($base_url . $i) .'">' . $i . '</a></div>';
+					}
+				}
+				
+				if ($item->paged->has_next)
+				{
+					$echo .= '<div class="next"><a class="gbutton fright" href="' . site_url($base_url . $item->paged->total_pages) . '">»»</a></div>';
+					$echo .= '<div class="next"><a class="gbutton fright" href="' . site_url($base_url . $item->paged->next_page) . '">' . _('Next') . ' »</a></div>';
+				}
+			
+				$echo .= '<div class="clearer"></div></div>';
 		}
-
-
+		
 		return $echo;
 	}
-
-
 }

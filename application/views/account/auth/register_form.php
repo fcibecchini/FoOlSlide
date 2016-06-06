@@ -9,7 +9,8 @@
 			'value' => set_value('username'),
 			'maxlength' => $this->config->item('username_max_length', 'tank_auth'),
 			'size' => 30,
-			'placeholder' => _('required')
+			'placeholder' => _('required'),
+        'class' => 'form-control'
 		);
 	}
 	$email = array(
@@ -18,7 +19,8 @@
 		'value' => set_value('email'),
 		'maxlength' => 80,
 		'size' => 30,
-		'placeholder' => _('required')
+		'placeholder' => _('required'),
+        'class' => 'form-control'
 	);
 	$password = array(
 		'name' => 'password',
@@ -26,7 +28,8 @@
 		'value' => set_value('password'),
 		'maxlength' => $this->config->item('password_max_length', 'tank_auth'),
 		'size' => 30,
-		'placeholder' => _('required')
+		'placeholder' => _('required'),
+        'class' => 'form-control'
 	);
 	$confirm_password = array(
 		'name' => 'confirm_password',
@@ -34,13 +37,15 @@
 		'value' => set_value('confirm_password'),
 		'maxlength' => $this->config->item('password_max_length', 'tank_auth'),
 		'size' => 30,
-		'placeholder' => _('required')
+		'placeholder' => _('required'),
+        'class' => 'form-control'
 	);
 	$captcha = array(
 		'name' => 'captcha',
 		'id' => 'captcha',
 		'maxlength' => 8,
-		'placeholder' => _('required')
+		'placeholder' => _('required'),
+        'class' => 'form-control'
 	);
 	?>
 	<?php echo form_open($this->uri->uri_string()); ?>
@@ -72,24 +77,24 @@
 {
 	if ($use_recaptcha)
 	{ ?>
-			<div class="formgroup">
-				<div>
-					<div id="recaptcha_image"></div>
-				</div>
-				<div>
-					<a href="javascript:Recaptcha.reload()"><?php echo _('Get another CAPTCHA') ?></a>
-					<div class="recaptcha_only_if_image"><a href="javascript:Recaptcha.switch_type('audio')"><?php echo _('Get an audio CAPTCHA') ?></a></div>
-					<div class="recaptcha_only_if_audio"><a href="javascript:Recaptcha.switch_type('image')"><?php echo _('Get an image CAPTCHA') ?></a></div>
-				</div>
-			</div>
-			<div class="formgroup">
-				<div>
-					<div class="recaptcha_only_if_image"><?php echo _('Enter the words above') ?></div>
-					<div class="recaptcha_only_if_audio"><?php echo _('Enter the numbers you hear') ?></div>
-				</div>
-				<div><input type="text" id="recaptcha_response_field" name="recaptcha_response_field" /></div>
-				<td style="color: red;"><?php echo form_error('recaptcha_response_field'); ?></div>
-				<?php echo $recaptcha_html; ?>
+        <div class="formgroup">
+            <div>
+                <div id="recaptcha_image"></div>
+            </div>
+            <div>
+                <a href="javascript:Recaptcha.reload()"><?php echo _('Get another CAPTCHA') ?></a>
+                <div class="recaptcha_only_if_image"><a href="javascript:Recaptcha.switch_type('audio')"><?php echo _('Get an audio CAPTCHA') ?></a></div>
+                <div class="recaptcha_only_if_audio"><a href="javascript:Recaptcha.switch_type('image')"><?php echo _('Get an image CAPTCHA') ?></a></div>
+            </div>
+        </div>
+        <div class="formgroup">
+            <div>
+                <div class="recaptcha_only_if_image"><?php echo _('Enter the words above') ?></div>
+                <div class="recaptcha_only_if_audio"><?php echo _('Enter the numbers you hear') ?></div>
+            </div>
+            <div><input type="text" id="recaptcha_response_field" name="recaptcha_response_field" /></div>
+            <td style="color: red;"><?php echo form_error('recaptcha_response_field'); ?></td>
+            <?php echo $recaptcha_html; ?>
 		</div>
 	<?php }
 	else
@@ -111,10 +116,10 @@
 } ?>
 <div class="formgroup">
 	<div></div>
-	<div><?php echo form_submit('register', _('Register')); ?></div>
+	<div><?php echo form_submit(array('name' => 'register', 'class' => 'form-control btn btn-success'), _('Register')); ?></div>
 </div>
 <?php echo form_close(); ?>
 
-<a href="<?php echo site_url('/account/auth/login/') ?>" class="button yellow"><?php echo _("Back to login") ?></a>
+<a href="<?php echo site_url('/account/auth/login/') ?>" class="btn btn-warning"><?php echo _("Back to login") ?></a>
 
 </div>

@@ -15,6 +15,8 @@ if (!defined('BASEPATH'))
 	echo '<div class="element">
 					<div class="title">' . _("URL") . ': <a href="' . $team->url . '">' . $team->url . '</a></div></div>
 						<div class="element">
+					<div class="title">' . _("Translations") . ': <a href="' . site_url() . 'teamworks/' . $team->stub . '">' . site_url() . 'teamworks/' . $team->stub . '</a></div></div>
+						<div class="element">
 					<div class="title">' . _("IRC") . ': <a href="' . parse_irc($team->irc) . '">' . $team->irc . '</a></div></div>
 						<div class="element">
 					<div class="title">' . _("Twitter") . ': <a href="http://twitter.com/' . $team->twitter . '">http://twitter.com/' . $team->twitter . '</a></div></div>

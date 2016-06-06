@@ -8,15 +8,15 @@ if (!defined('BASEPATH'))
 		<div>
 			<div class="topbar_left">
 				<h1 class="tbtitle dnone"><?php echo $comic->url() ?> :: <?php echo $chapter->url() ?></h1>
-				<div class="tbtitle dropdown_parent"><div class="text"><?php echo $comic->url() ?> ⤵</div>
+				<div class="tbtitle dropdown_parent"><div class="text"><?php echo $comic->url() ?></div>
 					<?php
-					echo '<ul class="dropdown">';
+					/*echo '<ul class="dropdown">';
 					foreach ($comics->all as $co)
 					{
 						echo '<li>' . $co->url() . '</li>';
 					}
 					echo '</ul>'
-					?>
+					*/ ?>
 				</div>
 				<div class="tbtitle dropdown_parent"><div class="text"><?php echo '<a href="' . $chapter->href() . '">' . ((strlen($chapter->title()) > 58) ? (substr($chapter->title(), 0, 50) . '...') : $chapter->title()) . '</a>' ?> ⤵</div>
 					<?php
@@ -50,6 +50,7 @@ if (!defined('BASEPATH'))
 <div class="clearer"></div>
 
 <div id="bottombar">
+	<!--
     <div class="socialbuttons">
         <div class="tweet">
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="<?php echo $chapter->href() ?>" data-count="horizontal" data-via="<?php echo get_setting_twitter(); ?>" data-related="<?php echo get_setting_twitter(); ?>">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
@@ -57,10 +58,12 @@ if (!defined('BASEPATH'))
 		<div class="facebook">
 			<iframe src="http://www.facebook.com/plugins/like.php?href=<?php echo urlencode($chapter->href()) ?>&amp;layout=button_count&amp;show_faces=false&amp;width=90&amp;action=like&amp;font=arial&amp;colorscheme=light&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:95px; height:21px;" allowTransparency="true"></iframe>
 		</div>
+		<!--
 		<div class="googleplus">
 			<g:plusone size="medium" href="<?php echo $chapter->href() ?>"></g:plusone>
 		</div>
     </div>
+    -->
 </div>
 
 <script type="text/javascript">
@@ -179,7 +182,7 @@ if (!defined('BASEPATH'))
 				if(e.keyCode==37 || e.keyCode==65)
 				{
 					if(!isSpread) prevPage();
-					else if(e.timeStamp - timeStamp37 < 400 && e.timeStamp - timeStamp37 > 150) prevPage();
+					else if((e.timeStamp - timeStamp37 < 400) && (e.timeStamp - timeStamp37 > 150)) prevPage();
 					timeStamp37 = e.timeStamp;
 
 					button_down = true;
@@ -193,7 +196,7 @@ if (!defined('BASEPATH'))
 				if(e.keyCode==39 || e.keyCode==68)
 				{
 					if(!isSpread) nextPage();
-					else if(e.timeStamp - timeStamp39 < 400 && e.timeStamp - timeStamp39 > 150) nextPage();
+					else if((e.timeStamp - timeStamp39 < 400) && (e.timeStamp - timeStamp39 > 150)) nextPage();
 					timeStamp39 = e.timeStamp;
 
 					button_down = true;

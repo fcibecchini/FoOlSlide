@@ -46,6 +46,7 @@ $route['admin'] = "admin/series";
 $route['admin/series/series/(:any)'] = "admin/series/serie/$1";
 $route['admin/upgrade'] = 'admin/system/upgrade';
 $route['admin/members/members'] = 'admin/members/membersa';
+$route['admin/members/members/(:num)'] = 'admin/members/membersa/$1';
 $route['account'] = "account/index/profile";
 $route['account/profile'] = "account/index/profile";
 $route['account/teams'] = "account/index/teams";

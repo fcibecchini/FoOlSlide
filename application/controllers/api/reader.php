@@ -7,13 +7,49 @@ class Reader extends REST_Controller
 	/**
 	 * Returns 100 comics from selected page
 	 * 
-	 * Available filters: page, per_page (default:30, max:100), orderby
+	 * Available filters: page, per_page (default:30, max:100), orderby, tag, count (comics)
 	 * 
 	 * @author Woxxy
 	 */
 	function comics_get()
 	{
 		$comics = new Comic();
+
+		if ($this->get('tag'))
+		{
+			$tag = new Tag();
+			$tag->ilike('name', $this->get('tag'))->get();
+
+			if($tag->result_count() < 1)
+			{
+				$this->response(array('error' => _('Comics could not be found')), 404);
+			}
+		
+			$jointags = new Jointag();
+			$jointags->where('tag_id', $tag->id)->get();
+			$comics = new Comic();
+		
+			if ($jointags->result_count() > 0) 
+			{
+				foreach ($jointags as $j)
+				{
+					$comics->or_where('jointag_id', $j->jointag_id)->where('hidden', 0);
+				}
+			}
+		}
+
+		if ($this->get('count'))
+		{
+			$query = $this->get('count');
+			$result = array();
+			if ($query === 'comics')
+			{
+				$result['count'] = $comics->where('hidden', 0)->count(); // we count how many comics we have
+				$this->response($result, 200); // 200 being the HTTP response code
+			}
+			else
+				$this->response(array('error' => _('Cannot count on undefined')), 404);
+		}	
 
 		// filter with orderby
 		$this->_orderby($comics);
@@ -43,7 +79,7 @@ class Reader extends REST_Controller
 	/**
 	 * Returns the comic
 	 * 
-	 * Available filters: id (required)
+	 * Available filters: id (required), forum topic
 	 * 
 	 * @author Woxxy
 	 */
@@ -67,6 +103,12 @@ class Reader extends REST_Controller
 				$comic->where('uniqid', $this->get('uniqid'));
 			$comic->limit(1)->get();
 		}
+		else if ($this->get('topic'))
+		{
+			$comic = new Comic();
+			$comic->where('urlforum', 'http://hentai.forumcommunity.net/?t='.$this->get('topic'));
+			$comic->limit(1)->get();
+		}
 		else
 		{
 			$this->response(array('error' => _('You didn\'t use the necessary parameters')), 404);
@@ -80,6 +122,16 @@ class Reader extends REST_Controller
 			$result = array();
 
 			$result["comic"] = $comic->to_array();
+			
+			$comic->get_tags();
+			if ($comic->tags)
+			{
+				$tags = $comic->tags;
+				foreach($tags as $key => $value)
+				{
+					$result['comic']['tags'][] = $value->name;
+				}
+			}
 
 			// order in the beautiful [comic][chapter][teams][page]
 			$result["chapters"] = array();

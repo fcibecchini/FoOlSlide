@@ -42,7 +42,7 @@
 			foreach ($requests->all as $key => $request)
 			{
 				echo '<tr>';
-				echo '<td>'._("User:") . $request->user->username . ' Â» '.$request->team->name.'</td>';
+				echo '<td>'._("User:") . $request->user->username . ' » '.$request->team->name.'</td>';
 				echo '<td style="text-align:right"><a href="'.site_url('/account/request/'.$team["stub"].'/'.$request->user->id).'">'._("Options").'</a></td>';
 				echo '</tr>';
 			}
@@ -56,7 +56,6 @@
 			'name' => 'team_name',
 			'id' => 'team_name'
 		);
-
 		echo form_open();
 		echo form_hidden('action', 'apply_with_team_name');
 		echo _("Insert the exact name of the team you'd like to apply to:");
@@ -68,7 +67,7 @@
 			<div style="color: red;"><?php echo form_error($team_name['name']); ?><?php echo isset($errors[$team_name['name']]) ? $errors[$team_name['name']] : ''; ?></div>
 		</div>
 		<div class="formgroup">
-			<div><?php echo form_submit('submit', _('Apply')); ?></div>
+			<div><?php echo form_submit(array('name' => 'submit', 'class' => 'form-control btn btn-primary'), _('Apply')); ?></div>
 		</div>
 		<?php
 		echo '<br/><br/>';

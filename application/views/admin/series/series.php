@@ -2,13 +2,12 @@
 $this->buttoner[] = array(
 	'text' => _('Delete Series'),
 	'href' => site_url('/admin/series/delete/serie/'.$comic->id),
-	'plug' => _('Do you really want to delete this series and its chapters?')
+	'plug' => _('Do you really want to delete this series and its chapters?'),
+	'class' => "btn-danger"
 );
 ?>
 <div class="table">
-	<h3 style="float: left"><?php echo _('Series Information'); ?></h3>
-	<span style="float: right; padding: 5px"><?php echo buttoner(); ?></span>
-	<hr class="clear"/>
+	<h3><?php echo _('Series Information'); ?> <?php echo buttoner(); ?></h3>
 	<?php
 		echo form_open_multipart("", array('class' => 'form-stacked'));
 		echo $table;
@@ -18,11 +17,26 @@ $this->buttoner[] = array(
 
 <br/>
 
+<?php 
+// $current_volume = "";
+// foreach ($chapters as $item)
+// {
+// 	if ($current_volume != $item->volume && $chapters->result_count() > 1)
+// 	{
+// 		echo '<div class="table"><h3>' . _('Download Volume ') . $item->volume . '</h3>';
+// 		echo '<div class="input"><textarea cols="1" rows="1" class="form-control" onFocus="this.select()">'.$item->download_volume_href().'</textarea>';
+// 		echo '</div></div><br/>';
+
+// 		$current_volume = $item->volume;
+// 	}
+// }
+?>
+
 <?php
 	$this->buttoner = array(
 		array(
 			'href' => site_url('/admin/series/add_new/'.$comic->stub),
-			'text' => _('Add Chapter')
+			'text' => _('Add Chapter'),
 		)
 	);
 	
@@ -35,9 +49,7 @@ $this->buttoner[] = array(
 	}
 ?>
 <div class="table" style="padding-bottom: 15px">
-	<h3 style="float: left"><?php echo _('Chapters'); ?></h3>
-	<span style="float: right; padding: 5px"><?php echo buttoner(); ?></span>
-	<hr class="clear">
+	<h3><?php echo _('Chapters'); ?> <?php echo buttoner(); ?></h3>
 	<div class="list chapters">
 	<?php
 		foreach ($chapters as $item)

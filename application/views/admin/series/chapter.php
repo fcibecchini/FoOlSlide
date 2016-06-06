@@ -2,22 +2,34 @@
 $this->buttoner[] = array(
 	'text' => _('Delete chapter'),
 	'href' => site_url('/admin/series/delete/chapter/' . $chapter->id),
-	'plug' => _('Do you really want to delete this chapter and its pages?')
+	'plug' => _('Do you really want to delete this chapter and its pages?'),
+    'class' => 'btn-danger'
 );
-
 $this->buttoner[] = array(
 	'text' => _('Read chapter'),
-	'href' => $chapter->href()
+	'href' => $chapter->href(),
+    'class' => 'btn-success'
 );
 ?>
 
 <div class="table">
-	<h3 style="float: left"><?php echo _('Chapter Information'); ?></h3>
-	<span style="float: right; padding: 5px"><?php echo buttoner(); ?></span>
-	<hr class="clear"/>
+	<h3><?php echo _('Chapter Information'); ?> <?php echo buttoner(); ?></h3>
 	<?php
 		echo form_open('', array('class' => 'form-stacked'));
 		echo $table;
+		echo form_close();
+	?>
+</div>
+
+<br/>
+
+<div class="table">
+	<h3><?php echo _('Share'); ?></h3>
+	<?php
+		echo form_open('', array('class' => 'form-stacked'));
+		echo "<div class='input'><textarea name='share' cols='70' rows='4' class='form-control' onFocus='this.select()'>";
+		echo $chapter->share();
+		echo "</textarea></div>";
 		echo form_close();
 	?>
 </div>
@@ -33,8 +45,7 @@ $this->buttoner[] = array(
 		<div class="fileupload-buttonbar">
 			<?php echo form_open_multipart("", array('style' => 'margin-bottom:0px;')); ?>
 			<label class="fileinput-button">
-				<span><?php echo _("Add files...") ?></span>
-				<input type="file" name="Filedata[]" multiple>
+				Browse <input type="file" name="Filedata[]" multiple>
 			</label>
 			<button type="submit" class="start"><?php echo _("Start upload") ?></button>
 			<button type="reset" class="cancel"><?php echo _("Cancel upload") ?></button>
@@ -42,7 +53,7 @@ $this->buttoner[] = array(
 			<?php echo form_close(); ?>
 		</div>
 		<div class="fileupload-content">
-			<table class="files zebra-striped"></table>
+			<table class="table files table-striped"></table>
 			<div class="fileupload-progressbar"></div>
 		</div>
 	</div>
@@ -119,7 +130,6 @@ $this->buttoner[] = array(
 				}
 			]
 		});
-
 		jQuery.post('<?php echo site_url('/admin/series/get_file_objects'); ?>', { id : <?php echo $chapter->id; ?> }, function (files) {
 			var fu = jQuery('#fileupload').data('fileupload');
 			fu._adjustMaxNumberOfFiles(-files.length);
@@ -128,9 +138,7 @@ $this->buttoner[] = array(
 			.fadeIn(function () {
 				jQuery(this).show();
 			});
-
 		});
-
 		jQuery('#fileupload .files a:not([target^=_blank])').live('click', function (e) {
 			e.preventDefault();
 			jQuery('<iframe style="display:none;"></iframe>')

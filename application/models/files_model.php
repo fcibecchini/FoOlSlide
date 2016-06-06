@@ -41,6 +41,19 @@ class Files_model extends CI_Model
 		}
 		return true;
 	}
+	
+	public function tag_thumb($tag, $data)
+	{
+		$file["server_path"] = $data["full_path"];
+		$file["name"] = $data["file_name"];
+	
+		if (!$tag->add_tag_thumb($file))
+		{
+			log_message('error', 'Model: files_model.php/tag_thumb: function add_tag_thumb failed');
+			return false;
+		}
+		return true;
+	}
 
 
 	public function compressed_chapter($path, $filename, $chapter_id)

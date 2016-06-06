@@ -232,6 +232,8 @@ if ( ! function_exists('humanize'))
 	}
 }
 
+// --------------------------------------------------------------------
+
 /**
  * Slugify
  *
@@ -254,24 +256,18 @@ if(!function_exists('slugify'))
 		{
 			include(APPPATH.'config'.DS.'foreign_chars.php');
 		}
-
 		$string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
 		$quotedReplacement = preg_quote($replacement, '/');
-
 		$map = array(
-			'/[^\s\p{Zs}\p{Ll}\p{Lm}\p{Lo}\p{Lt}\p{Lu}\p{Nd}]/mu' => ' ',
-			'/[\s\p{Zs}]+/mu' => $replacement,
-			sprintf('/^[%s]+|[%s]+$/', $quotedReplacement, $quotedReplacement) => '',
+				'/[^\s\p{Zs}\p{Ll}\p{Lm}\p{Lo}\p{Lt}\p{Lu}\p{Nd}]/mu' => ' ',
+				'/[\s\p{Zs}]+/mu' => $replacement,
+				sprintf('/^[%s]+|[%s]+$/', $quotedReplacement, $quotedReplacement) => '',
 		);
-
 		$string = preg_replace(array_keys($map), array_values($map), $string);
-
 		if (isset($transliteration))
 			$string = str_replace(array_keys($transliteration), array_values($transliteration), $string);
-
 		if (isset($foreign_characters))
 			return preg_replace(array_keys($foreign_characters), array_values($foreign_characters), $string);
-
 		return strtolower($string);
 	}
 }

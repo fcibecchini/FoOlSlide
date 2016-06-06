@@ -539,6 +539,5 @@ class System extends Admin_Controller
 
 		$this->output->set_output(json_encode(array('href' => $response)));
 	}
-
-
+	
 }

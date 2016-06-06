@@ -28,11 +28,42 @@ if(!function_exists('get_sidebar'))
 	function get_sidebar()
 	{
 		$echo = '';
-		$echo .= '<ul class="sidebar">';
 		if(get_setting_irc())$echo .= '<li><h3>IRC</h3>'. get_irc_widget() .'</li>';
 		if(get_setting_twitter())$echo .= '<li><h3>Twitter</h3>'. get_twitter_widget() .'</li>';
-		if(get_setting_facebook())$echo .= '<li><h3>Facebook	</h3>'. get_facebook_widget() .'</li>';
-		$echo .= '</ul>';
+		if(get_setting_facebook())$echo .= '<li><h3>Facebook</h3>'. get_facebook_widget() .'</li>';
+		return $echo;
+	}
+}
+
+if(!function_exists('get_searchtags_widget'))
+{
+	function get_searchtags_widget()
+	{
+		$tags = new Tag();
+		$tags->order_by('name','ASC')->get_iterated();
+		$tagnames = array("");
+		foreach ($tags as $tag)
+			$tagnames[$tag->id] = $tag->name;
+		
+		$table[] = array(
+			_('Tags'),
+			array(
+				'name' => 'tag',
+				'type' => 'dropdowner',
+				'values' => $tagnames,
+				'value' => array(),
+				'help' => _('Select the tags you are interested in')
+			)
+		);
+		$table = tabler($table, FALSE, TRUE, FALSE, TRUE);
+		$echo = '<script type="text/javascript">function addField(e)
+				{if (jQuery(e).val().length > 0){jQuery(e).clone().val("").insertAfter(e);jQuery(e).after("<br/>");
+				jQuery(e).attr("onKeyUp", "");jQuery(e).attr("onChange", "");}}</script>';
+		$echo .= '<li><h3>'._('Multiple Tag Search').'</h3>';
+		$echo .= form_open_multipart("search_tags/", array('class' => 'form-stacked'));
+		$echo .= $table;
+		$echo .= form_close();
+		$echo .= '</li>';
 		return $echo;
 	}
 }
@@ -141,8 +172,7 @@ if(!function_exists('get_facebook_widget'))
 	function get_facebook_widget($team = NULL)
 	{
 		$facebook = get_setting_facebook($team);
-
-		$echo = "<iframe src='http://www.facebook.com/plugins/likebox.php?href=".urlencode($facebook)."&amp;width=290&amp;colorscheme=light&amp;show_faces=false&amp;stream=false&amp;header=false' scrolling='no' frameborder='0' style='border:none; overflow:hidden; width:290px; height:63px; background:rgba(255,255,255,.5)' allowTransparency='true'></iframe>";
-		return $echo;
+		
+		return 	"<iframe src='http://www.facebook.com/plugins/likebox.php?href=".urlencode($facebook)."&amp;width=290&amp;colorscheme=light&amp;show_faces=false&amp;stream=false&amp;header=false' scrolling='no' frameborder='0' style='border:none; overflow:hidden; width:290px; height:63px; background:rgba(255,255,255,.5)' allowTransparency='true'></iframe>";	
 	}
 }

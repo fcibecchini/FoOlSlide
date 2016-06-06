@@ -4,7 +4,7 @@ if (!defined('BASEPATH'))
 ?>
 <div class="large">
 	<div class="center">
-		<?php echo _('Search series'); ?>:<br/>
+		<?php echo _('Search series - Type at least three characters'); ?>:<br/>
 		<?php
 		echo form_open("search/");
 		echo form_input(array('name' => 'search', 'placeholder' => _('To search series, type and hit enter'), 'id' => 'searchbox'));

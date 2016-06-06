@@ -159,7 +159,6 @@ class Preferences extends Admin_Controller
 						'it_IT.utf8' => 'Italian',
 						'id_ID.utf8' => 'Indonesian',
 						'ja_JP.utf8' => 'Japanese',
-						'hu_HU.utf8' => 'Hungarian',
 						'pl_PL.utf8' => 'Polish',
 						'pt_PT.utf8' => 'Portuguese',
 						'pt_BR.utf8' => 'Portuguese (Brazil)',
@@ -170,7 +169,7 @@ class Preferences extends Admin_Controller
 						'tr_TR.utf8' => 'Turkish'
 					),
 				'preferences' => 'fs_gen',
-				'help' => _('Changes the software language of FoOlSlide. Please contribute by translating this software on our <a href="https://www.transifex.net/projects/p/foolslide/resource/defaultpot/">Transifex project</a>.')
+				'help' => _('Changes the software language of FoOlSlide. Help with translation would me much appreciated.')
 			)
 		);
 
@@ -209,10 +208,22 @@ class Preferences extends Admin_Controller
 				'type' => 'themes',
 				'name' => 'fs_theme_dir',
 				'placeholder' => '',
+				'class' => 'form-control',
 				'preferences' => 'fs_gen'
 			)
 		);
 
+        $form[] = array(
+			_('Disqus Shortname (does not work yet)'),
+			array(
+				'type' => 'input',
+				'name' => 'fs_theme_disqus_code',
+				'placeholder' => '',
+				'preferences' => 'fs_gen',
+				'help' => _("<a href=\"https://help.disqus.com/customer/portal/articles/466208\">More info here</a>. If left empty, the Disqus comment section is disabled")
+			)
+		);
+		
 		$form[] = array(
 			_('Pre-Header Text'),
 			array(
@@ -245,6 +256,39 @@ class Preferences extends Admin_Controller
 				'help' => _("This will insert the HTML code above inside the &lt;HEAD&gt;.")
 			)
 		);
+		
+		$form[] = array(
+			_('Header Code Homepage'),
+			array(
+				'type' => 'textarea',
+				'name' => 'fs_theme_header_code_homepage',
+				'placeholder' => '',
+				'preferences' => 'fs_gen',
+				'help' => _("This will insert the HTML code above inside the &lt;HEAD&gt; in the homepage only.")
+			)
+		);
+		
+		$form[] = array(
+			_('Comic Keywords'),
+			array(
+				'type' => 'textarea',
+				'name' => 'fs_theme_comic_keywords',
+				'placeholder' => '',
+				'preferences' => 'fs_gen',
+				'help' => _("By default comic name, tags, parodies and authors will be added inside the &lt;HEAD&gt; as keywords in the main comic page. If you'd like to have other custom keywords, write them there. Note that each keyword must be separated from the others with a comma.")
+			)
+		);
+
+		$form[] = array(
+			_('Custom Navigation Link'),
+			array(
+				'type' => 'textarea',
+				'name' => 'fs_theme_custom_link',
+				'placeholder' => '',
+				'preferences' => 'fs_gen',
+				'help' => _("Inserts a custom navigation link in the navigation bar.")
+			)
+		);		
 
 		$form[] = array(
 			_('Footer Text'),
@@ -325,8 +369,7 @@ class Preferences extends Admin_Controller
 						'preferences' => 'fs_ads',
 						'text' => _('Reload on Every Pageview')
 					)
-				),
-				'help' => _('')
+				)
 			)
 		);
 
@@ -360,8 +403,7 @@ class Preferences extends Admin_Controller
 						'text' => _('Reload on Every Pageview')
 					)
 
-				),
-				'help' => _('')
+				)
 			)
 		);
 

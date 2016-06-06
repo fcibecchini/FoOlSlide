@@ -286,3 +286,9 @@ function HTMLpurify($dirty_html, $set = 'default')
 	}
 	return HTMLPurifier($dirty_html, $config);
 }
+
+function URIpurifier($string)
+{
+	$string = strtolower(preg_replace('/[^a-zA-Z0-9½]/', '_', $string));
+	return str_replace('½', '_', $string);
+}

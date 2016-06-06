@@ -28,6 +28,16 @@ class tools
 		$val = slugify($val);
 		return preg_replace('/[^a-z-0-9_]/i', '', $val);
 	}
+	
+	public function stub_field($input, $field)
+	{
+		$CI = & get_instance();
+		$CI->load->helper('inflector');
+		$val = $input->$field;
+		$val = strtolower(str_replace(" ", "_", trim($val)));
+		$val = slugify($val);
+		return preg_replace('/[^a-z-0-9_]/i', '', $val);
+	}
 
 	public function logged_id()
 	{

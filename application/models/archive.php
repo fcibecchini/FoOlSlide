@@ -48,24 +48,25 @@ class Archive extends DataMapper
 	 * @author Woxxy
 	 * @return url to compressed file
 	 */
-	function compress($comic, $language = 'en', $volume = null, $chapter = null, $subchapter = 0)
+	function compress($comic, $uniqid, $language = 'en', $volume = null, $chapter = null, $subchapter = 0)
 	{
 		require_once(FCPATH . 'assets/pclzip/pclzip.lib.php');
 		$files = array();
 
 		if (get_setting('fs_dl_volume_enabled') && $volume !== null && $chapter === null)
 		{
-			if ($volume == 0)
-			{
-				show_404();
-			}
 
 			$chapters = new Chapter();
 			$chapters->where('comic_id', $comic->id)->where('volume', $volume)
 				->order_by('volume', 'asc')->order_by('chapter', 'asc')->order_by('subchapter', 'asc')
-				->get();
+				->get_hidden();
 
 			if ($chapters->result_count() == 0)
+			{
+				show_404();
+			}
+			
+			if ($volume == 0 && $chapters->result_count() == 1)
 			{
 				show_404();
 			}
@@ -80,6 +81,10 @@ class Archive extends DataMapper
 			{
 				$pages = new Page();
 				$pages->where('chapter_id', $chaptere->id)->get();
+				
+				$ndownloads = $chaptere->downloads;
+				$chaptere->downloads = $ndownloads + 1;
+				$chaptere->save();
 
 				foreach ($pages as $page)
 				{
@@ -93,8 +98,8 @@ class Archive extends DataMapper
 		else
 		{
 			$chaptere = new Chapter();
-			$chaptere->where('comic_id', $comic->id)->where('language', $language)->where('volume', $volume)->where('chapter', $chapter)->where('subchapter', $subchapter);
-			$chaptere->get();
+			$chaptere->where('comic_id', $comic->id)->where('uniqid', $uniqid)->where('language', $language)->where('volume', $volume)->where('chapter', $chapter)->where('subchapter', $subchapter);
+			$chaptere->get_hidden();
 
 			if ($chaptere->result_count() == 0)
 			{
@@ -111,8 +116,16 @@ class Archive extends DataMapper
 
 			foreach ($pages as $page)
 			{
-				$files[] = 'content/comics/' . $comic->directory() . '/' . $chaptere->directory() . '/' . $page->filename;
+				$files[] = array(
+						PCLZIP_ATT_FILE_NAME => 'content/comics/' . $comic->directory() . '/' . $chaptere->directory() . '/' . $page->filename,
+						PCLZIP_ATT_FILE_NEW_FULL_NAME => $this->filename_chapter_compressed($chaptere) . '/' . $page->filename
+					);
 			}
+			
+			$ndownloads = $chaptere->downloads;
+			$chaptere->downloads = $ndownloads + 1;
+			$chaptere->save();
+			
 		}
 
 		$this->where('comic_id', $comic->id)->where('volume_id', $volume_id)->where('chapter_id', $chapter_id)->get();

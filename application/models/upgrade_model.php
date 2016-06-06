@@ -25,7 +25,7 @@ class Upgrade_model extends CI_Model {
 		else
 			$result = file_get_contents($this->pod . '/api/software/foolslide');
 		if (!$result) {
-			set_notice('error', _('FoOlPod server could not be contacted: impossible to check for new versions.'));
+			//set_notice('error', _('FoOlPod server could not be contacted: impossible to check for new versions.'));
 			return FALSE;
 		}
 		$data = json_decode($result);

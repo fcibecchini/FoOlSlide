@@ -8,15 +8,15 @@ if (!defined('BASEPATH'))
 		<div>
 			<div class="topbar_left">
 				<h1 class="tbtitle dnone"><?php echo $comic->url() ?> :: <?php echo $chapter->url() ?></h1>
-				<div class="tbtitle dropdown_parent"><div class="text"><?php echo $comic->url() ?> ⤵</div>
+				<div class="tbtitle dropdown_parent"><div class="text"><?php echo $comic->url() ?></div>
 					<?php
-					echo '<ul class="dropdown">';
+					/* echo '<ul class="dropdown">';
 					foreach ($comics->all as $co)
 					{
 						echo '<li>' . $co->url() . '</li>';
 					}
 					echo '</ul>'
-					?>
+					*/?> 
 				</div>
 				<div class="tbtitle dropdown_parent"><div class="text"><?php echo '<a href="' . $chapter->href() . '">' . ((strlen($chapter->title()) > 58) ? (substr($chapter->title(), 0, 50) . '...') : $chapter->title()) . '</a>' ?> ⤵</div>
 					<?php
@@ -29,7 +29,6 @@ if (!defined('BASEPATH'))
 					?>
 				</div>
 				<div class="tbtitle icon_wrapper dnone" ><img class="icon off" src="<?php echo glyphish(181); ?>" /><img class="icon on" src="<?php echo glyphish(181, TRUE); ?>" /></div>
-				<?php echo $chapter->download_url(NULL, "fleft"); ?>
 			</div>
 			<div class="topbar_right">
 				<div class="tbtitle dropdown_parent dropdown_right"><div class="text"><?php echo count($pages); ?> ⤵</div>
@@ -77,7 +76,7 @@ if (!defined('BASEPATH'))
     <div class="pagenumber">
 		<?php echo _('Page') . ' ' . $current_page ?>
     </div>
-    <div class="socialbuttons">
+<!--   <div class="socialbuttons">
         <div class="tweet">
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="<?php echo $chapter->href() ?>" data-count="horizontal" data-via="<?php echo get_setting_twitter(); ?>" data-related="<?php echo get_setting_twitter(); ?>">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
@@ -87,7 +86,7 @@ if (!defined('BASEPATH'))
 		<div class="googleplus">
 			<g:plusone size="medium" href="<?php echo $chapter->href() ?>"></g:plusone>
 		</div>
-    </div>
+</div>  --> 
 </div>
 
 <script type="text/javascript">
@@ -203,7 +202,7 @@ if (!defined('BASEPATH'))
 			}
 		}
 		else{
-			if(page_width < nice_width && doc_width > page_width + 10) {
+			if((page_width < nice_width) && (doc_width > page_width + 10)) {
 				width = page_width;
 				height = page_height;
 			}
@@ -270,7 +269,7 @@ if (!defined('BASEPATH'))
 	{
 		result = "";
 		for (j = pages.length+1; j > 0; j--) {
-			nextnumber = ((j/1000 < 1 && pages.length >= 1000)?'0':'') + ((j/100 < 1 && pages.length >= 100)?'0':'') + ((j/10 < 1 && pages.length >= 10)?'0':'') + j;
+			nextnumber = (((j/1000 < 1) && (pages.length >= 1000))?'0':'') + (((j/100 < 1) && (pages.length >= 100))?'0':'') + (((j/10 < 1) && (pages.length >= 10))?'0':'') + j;
 			result += "<div class='number number_"+ j +" dnone'><a href='" + base_url + "page/" + j + "' onClick='changePage("+(j-1)+"); return false;'>"+nextnumber+"</a></div>";
 		}
 		jQuery(".topbar_right .numbers").html(result);
@@ -315,7 +314,7 @@ if (!defined('BASEPATH'))
 				if(e.keyCode==37 || e.keyCode==65)
 				{
 					if(!isSpread) prevPage();
-					else if(e.timeStamp - timeStamp37 < 400 && e.timeStamp - timeStamp37 > 150) prevPage();
+					else if((e.timeStamp - timeStamp37 < 400) && (e.timeStamp - timeStamp37 > 150)) prevPage();
 					timeStamp37 = e.timeStamp;
 
 					button_down = true;
@@ -329,7 +328,7 @@ if (!defined('BASEPATH'))
 				if(e.keyCode==39 || e.keyCode==68)
 				{
 					if(!isSpread) nextPage();
-					else if(e.timeStamp - timeStamp39 < 400 && e.timeStamp - timeStamp39 > 150) nextPage();
+					else if((e.timeStamp - timeStamp39 < 400) && (e.timeStamp - timeStamp39 > 150)) nextPage();
 					timeStamp39 = e.timeStamp;
 
 					button_down = true;

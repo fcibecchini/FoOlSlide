@@ -69,7 +69,8 @@ class Members extends Admin_Controller
 		// create the form off the array
 		$data['form_title'] = _('Members');
 		$data['table'] = tabler($form, TRUE, FALSE);
-
+		$data['users'] = $users;		
+		
 		// print out
 		$this->viewdata["main_content_view"] = $this->load->view('admin/members/users', $data, TRUE);
 		$this->load->view("admin/default", $this->viewdata);
@@ -527,7 +528,7 @@ class Members extends Admin_Controller
 		if (!$this->tank_auth->is_admin())
 			return false;
 		$profile = new Profile();
-		if ($profile->change_group($user_id, 0))
+		if ($profile->change_group($user_id, 2))
 		{
 			flash_notice('notice', _('You have removed the user from the administrators group.'));
 			$this->output->set_output(json_encode(array('href' => site_url('/admin/members/member/' . $user_id))));
@@ -579,10 +580,29 @@ class Members extends Admin_Controller
 		if (!$this->tank_auth->is_admin())
 			return false;
 		$profile = new Profile();
-		if ($profile->change_group($user_id, 0))
+		if ($profile->change_group($user_id, 2))
 		{
 			flash_notice('notice', _('You have removed the user from the moderators group.'));
 			$this->output->set_output(json_encode(array('href' => site_url('/admin/members/member/' . $user_id))));
+			return true;
+		}
+		return false;
+	}
+	
+	
+	function remove_user($user_id)
+	{
+		if (!isAjax())
+		{
+			return false;
+		}
+		if (!$this->tank_auth->is_admin())
+			return false;
+		$users = new Users();
+		if ($users->delete_user($user_id))
+		{
+			flash_notice('notice', _('You have removed the user.'));
+			$this->output->set_output(json_encode(array('href' => site_url('/admin/members/members/'))));
 			return true;
 		}
 		return false;

@@ -93,6 +93,10 @@ class Chapter extends DataMapper
 		'editor' => array(
 			'rules' => array('required'),
 			'label' => 'Editor'
+		),
+		'downloads' => array(
+				'rules' => array(),
+				'label' => 'Number of Downloads'
 		)
 	);
 
@@ -190,6 +194,24 @@ class Chapter extends DataMapper
 
 		return $result;
 	}
+	
+	public function get_hidden($limit = NULL, $offset = NULL)
+	{
+		// Get the CodeIgniter instance, since it isn't set in this file.
+		$CI = & get_instance();
+	
+		$result = parent::get($limit, $offset);
+	
+		foreach ($this->all as $key => $item)
+		{
+			if (!$item->get_comic())
+			{
+				unset($this->all[$key]);
+			}
+		}
+	
+		return $result;
+	}
 
 
 	/**
@@ -231,6 +253,25 @@ class Chapter extends DataMapper
 	{
 		// Call the get()
 		$result = $this->get($limit, $offset);
+		// Return instantly on false.
+		if (!$result)
+			return $result;
+
+		// For each item we fetched, add the data, beside the pages
+		foreach ($this->all as $item)
+		{
+			$item->comic = new Comic($this->comic_id);
+			$teams = new Team();
+			$item->teams = $teams->get_teams($item->team_id, $item->joint_id);
+		}
+
+		return $result;
+	}
+	
+	public function get_bulk_hidden($limit = NULL, $offset = NULL)
+	{
+		// Call the get()
+		$result = $this->get_hidden($limit, $offset);
 		// Return instantly on false.
 		if (!$result)
 			return $result;
@@ -948,13 +989,13 @@ class Chapter extends DataMapper
 	public function download_url($text = NULL, $class = "")
 	{
 		if (get_setting('fs_dl_enabled'))
-			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->download_href() . '"><img class="icon off" src="' . glyphish(50) . '" /><img class="icon on" src="' . glyphish(50, TRUE) . '" /></a></div>';
+			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->download_href() . '"><i class="fa fa-download"></i></a></div>';
 	}
 
 	public function download_volume_url($text = NULL, $class = "")
 	{
 		if (get_setting('fs_dl_enabled') && get_setting('fs_dl_volume_enabled'))
-			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->download_volume_href() . '"><img class="icon off" src="' . glyphish(50) . '" /><img class="icon on" src="' . glyphish(50, TRUE) . '" /></a></div>';
+			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->download_volume_href() . '"><i class="fa fa-download"></i></a></div>';
 	}
 
 
@@ -1097,6 +1138,36 @@ class Chapter extends DataMapper
 	{
 		return site_url('read/' . $this->unique_href());
 	}
+	
+	public function href_iterated()
+	{
+		$this->get_comic();
+		$chapter = new Chapter();
+		$chapter->where('comic_id', $this->comic->id)->where('volume', $this->volume)->where('chapter', $this->chapter)->where('language', $this->language)->where('subchapter', $this->subchapter)->get();
+		$url = $this->comic->stub . '/' . $this->language . '/' . $this->volume . '/' . $this->chapter . '/';
+
+		if ($chapter->result_count() > 1)
+		{
+
+			$url .= $this->subchapter . '/';
+
+			if ($this->team_id != 0)
+			{
+				$team = new Team($this->team_id);
+				$url .= $team->stub . '/';
+			}
+			else if ($this->joint_id != 0)
+				$url .= '0/' . $this->joint_id . '/';
+		}
+		else
+		{
+			if ($this->subchapter != 0)
+			{
+				$url .= $this->subchapter . '/';
+			}
+		}
+		return site_url('read/' . $url);
+	}
 
 
 	/**
@@ -1107,14 +1178,24 @@ class Chapter extends DataMapper
 	 */
 	public function download_href()
 	{
-		return site_url('download/' . $this->unique_href());
+		$url = $this->comic->stub . '/' . $this->uniqid . '/' . $this->language . '/' . $this->volume . '/' . $this->chapter . '/';
+		if ($this->subchapter != 0)
+		{
+			$url .= $this->subchapter . '/';
+		}
+		return site_url('download/' . $url);
 	}
 
 	public function download_volume_href()
 	{
-		return site_url('download/' . $this->unique_volume_href());
+		$url = $this->comic->stub . '/' . $this->uniqid . '/' . $this->language . '/' . $this->volume . '/';
+		return site_url('download/' . $url);
 	}
-
+	
+	public function share() 
+	{
+		return '[CENTER][URL='.$this->href().'][IMG]'.site_url().'content/reader.png[/IMG][/URL][URL='.$this->download_href().'][IMG]'.site_url().'content/download.png[/IMG][/URL][/CENTER]';
+	}
 
 	public function unique_href()
 	{
@@ -1124,7 +1205,7 @@ class Chapter extends DataMapper
 
 		// We need the comic
 		$this->get_comic();
-
+		
 		// Identify the chapter through data, not ID. This allows us to find out if there are multiple similar chapters.
 		$chapter = new Chapter();
 		$chapter->where('comic_id', $this->comic->id)->where('volume', $this->volume)->where('chapter', $this->chapter)->where('language', $this->language)->where('subchapter', $this->subchapter)->get();

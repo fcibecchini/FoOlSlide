@@ -32,15 +32,19 @@ class Series extends Admin_Controller
 		$this->viewdata["function_title"] = _('Manage');
 		$comics = new Comic();
 
-		if ($this->input->post('search'))
+		if ($this->input->post('search') && strlen($this->input->post('search')) > 2)
 		{
 			$search = $this->input->post('search');
-			$comics->ilike('name', $search)->limit(20);
+			$comics->ilike('name', $search);
 			$this->viewdata["extra_title"][] = _('Searching') . ': ' . htmlspecialchars(($search));
+			$comics->order_by('name', 'ASC');
+			$comics->get();
 		}
-
-		$comics->order_by('name', 'ASC');
-		$comics->get_paged_iterated($page, 20);
+		else 
+		{
+			$comics->order_by('name','ASC');
+			$comics->get_paged_iterated($page,20);
+		}
 		$data["comics"] = $comics;
 
 		$this->viewdata["main_content_view"] = $this->load->view("admin/series/manage.php", $data, TRUE);
@@ -58,6 +62,22 @@ class Series extends Admin_Controller
 			$this->manage();
 			return false;
 		}
+		
+		// Obtain All Types
+		$typehs = new Typeh();
+		$typehs->order_by('name', 'ASC')->get();
+		
+		// Generate Dropdown Array
+		$dropdown = array();
+		foreach ($typehs->all as $typeh) {
+			$dropdown[$typeh->id] = $typeh->name;
+		}
+		
+		// Setup Types Dropdown
+		$comic->validation['typeh_id']['label'] = _('Tipo');
+		$comic->validation['typeh_id']['type'] = 'dropdowner';
+		$comic->validation['typeh_id']['values'] = $dropdown;
+		$comic->validation['typeh_id']['help'] = _('Seleziona il tipo della serie');
 
 		$this->viewdata["function_title"] = '<a href="' . site_url('/admin/series/manage/') . '">' . _('Manage') . '</a>';
 		if ($chapter_id == "") $this->viewdata["extra_title"][] = $comic->name;
@@ -91,11 +111,11 @@ class Series extends Admin_Controller
 					'help' => _('Insert the names of the teams who worked on this chapter.')
 				)
 			);
-
+			
 			$table = tabler($table);
 
 			$data["table"] = $table;
-
+			
 			$this->viewdata["extra_title"][] = '<a href="' . site_url('admin/series/series/'.$comic->stub) . '">' . $comic->name . '</a>';
 			$this->viewdata["extra_title"][] = (($chapter->name != "") ? $chapter->name : $chapter->chapter . "." . $chapter->subchapter);
 
@@ -158,7 +178,47 @@ class Series extends Admin_Controller
 		if ($comic->get_thumb())
 			$comic->thumbnail = $comic->get_thumb();
 		$table = ormer($comic);
+		
+		$tags = new Tag();
+		$tags->order_by('name','ASC')->get();
+		$tagnames = array("");
+		foreach ($tags->all as $tag)
+		{
+			$tagnames[] = $tag->name;
+		}
+		//$comic->get_tags();
+		$tagsearch = new Tag();
+		$tagvalues = $tagsearch->get_tags($comic->jointag_id);
+		
+		$tagarray = array();
+		
+		foreach ($tagnames as $kk => $name)
+		{
+			foreach ($tagvalues as $k => $tt)
+			{
+				if ($tagnames[$kk] === $tt->name)
+				{
+					$tagarray[$tt->name] = $kk;
+				}
+			}
+		}
 
+// 		foreach ($tagvalues as $k => $tt)
+// 		{
+// 			$tagarray[] = $tt;
+// 		}
+					
+		$table[] = array(
+				_('Genere'),
+				array(
+						'name' => 'tags',
+						'type' => 'dropdowner',
+						'values' => $tagnames,
+						'value' => $tagarray,
+						'help' => _('Inserisci i Generi della Serie')
+				)
+		);
+		
 		$licenses = new License();
 
 		$table[] = array(
@@ -170,17 +230,18 @@ class Series extends Admin_Controller
 				'help' => _('Insert the nations where the series is licensed in order to limit the availability.')
 			)
 		);
-
+		
 		$custom_slug = array(array(
-			_('Custom URL Slug'),
-			array(
-				'name' => 'has_custom_slug',
-				'type' => 'checkbox',
-				'text' => _('Has Custom URL Slug'),
-				'help' => _('If you want to have a custom url slug or the comic\'s title is written with non-latin letters tick this.'),
-				'class' => 'jqslugcb'
-			)
+				_('Custom URL Slug'),
+				array(
+						'name' => 'has_custom_slug',
+						'type' => 'checkbox',
+						'text' => _('Has Custom URL Slug'),
+						'help' => _('If you want to have a custom url slug or the comic\'s title is written with non-latin letters tick this.'),
+						'class' => 'jqslugcb'
+				)
 		));
+			
 		array_splice($table, 2, 0, $custom_slug);
 
 		$table = tabler($table);
@@ -238,6 +299,23 @@ class Series extends Admin_Controller
 		else
 		{
 			$comic = new Comic();
+			
+			// Obtain All Types
+			$typehs = new Typeh();
+			$typehs->order_by('name', 'ASC')->get();
+				
+			// Generate Dropdown Array
+			$dropdown = array();
+			foreach ($typehs->all as $typeh) {
+				$dropdown[$typeh->id] = $typeh->name;
+			}
+				
+			// Setup Types Dropdown
+			$comic->validation['typeh_id']['label'] = _('Tipo');
+			$comic->validation['typeh_id']['type'] = 'dropdowner';
+			$comic->validation['typeh_id']['values'] = $dropdown;
+			$comic->validation['typeh_id']['help'] = _('Seleziona il tipo della serie');
+							
 			if ($this->input->post())
 			{
 				if ($comic->add($this->input->post()))
@@ -265,6 +343,26 @@ class Series extends Admin_Controller
 			}
 
 			$table = ormer($comic);
+			
+			$tags = new Tag();
+			$tags->order_by('name','ASC')->get();
+			$tagnames = array("");
+			foreach ($tags->all as $tag)
+			{
+				$tagnames[] = $tag->name;
+			}
+			
+			$table[] = array(
+					_('Genere'),
+					array(
+						'name' => 'tags',
+						'type' => 'dropdowner',
+						'values' => $tagnames,
+						'value' => array(),
+						'help' => _('Inserisci i Generi della Serie')
+					)
+			);
+			
 			$table[] = array(
 				_('Licensed in'),
 				array(
@@ -272,9 +370,10 @@ class Series extends Admin_Controller
 					'type' => 'nation',
 					'value' => array(),
 					'help' => _('Insert the nations where the series is licensed in order to limit the availability.'),
-				),
+					'class' => 'form-control'
+				)
 			);
-
+			
 			$custom_slug = array(array(
 				_('Custom URL Slug'),
 				array(
@@ -285,14 +384,15 @@ class Series extends Admin_Controller
 					'class' => 'jqslugcb'
 				)
 			));
+			
 			array_splice($table, 2, 0, $custom_slug);
 
 			$table = tabler($table, FALSE, TRUE);
 			$data["form_title"] = _('Add New') . ' ' . _('Series');
 			$data['table'] = $table;
 
-			$this->viewdata["extra_title"][] = _("Series");
 			$this->viewdata["extra_script"] = '<script type="text/javascript" src="'.base_url().'assets/js/form-extra.js"></script>';
+			$this->viewdata["extra_title"][] = _("Series");
 			$this->viewdata["main_content_view"] = $this->load->view("admin/form.php", $data, TRUE);
 			$this->load->view("admin/default.php", $this->viewdata);
 		}
@@ -350,6 +450,298 @@ class Series extends Admin_Controller
 		$this->viewdata["main_content_view"] = $this->load->view("admin/form.php", $data, TRUE);
 		$this->load->view("admin/default.php", $this->viewdata);
 		return true;
+	}
+	
+	function add_type() 
+	{
+		
+		// only admins are allowed to create new comic types
+		if (!$this->tank_auth->is_admin())
+		{
+			show_404();
+		}
+		
+		// save the data if POST
+		if ($this->input->post())
+		{
+			$type = new Typeh();
+			if ($type->add($this->input->post()))
+			{
+				flash_notice('notice', 'Added the tag ' . $tag->name . '.');
+				redirect('/admin/series/manage_types/' . str_replace(' ', '_', $type->name));
+			}
+		}
+		
+		$type = new Typeh();
+		
+		// set title and subtitle
+		$this->viewdata["function_title"] = '<a href="' . site_url("/admin/series/manage_types") . '">' . _('Types') . '</a>';
+		$this->viewdata["extra_title"][] = _('Add New');
+		
+		// transform the Datamapper array to a form
+		$result = ormer($type);
+		$result = tabler($result, FALSE, TRUE);
+		$data['form_title'] = _('Add New Type');
+		$data['table'] = $result;
+		
+		// print out
+		$this->viewdata["main_content_view"] = $this->load->view('admin/form', $data, TRUE);
+		$this->load->view("admin/default", $this->viewdata);
+	}
+	
+	function manage_types($stub = "") 
+	{
+		// no type selected
+		if ($stub == "")
+		{
+			// set subtitle
+			$this->viewdata["function_title"] = _('Types');
+		
+			$types = new Typeh();
+		
+			// support filtering via search
+			if ($this->input->post())
+			{
+				$types->ilike('name', $this->input->post('search'));
+				$this->viewdata['extra_title'][] = _('Searching') . " : " . $this->input->post('search');
+			}
+		
+			$types->order_by('name', 'ASC')->get_iterated();
+			$rows = array();
+			// produce links for each type
+			foreach ($types as $type)
+			{
+				$rows[] = array('title' => '<a href="' . site_url('admin/series/manage_types/' . strtolower(str_replace(' ', '_', $type->name))) . '">' . $type->name . '</a>');
+			}
+			// put in a list the types
+			$data['form_title'] = _('Types');
+			$data['table'] = tabler($rows, TRUE, FALSE);
+		
+			// print out
+			// we are using the default users view to show the types: this is ok since we only want
+			// to show a list of links, but it would be better to implement an independent view in the future.
+			$this->viewdata["main_content_view"] = $this->load->view('admin/members/users', $data, TRUE);
+			$this->load->view("admin/default", $this->viewdata);
+		}
+		else
+		{
+			// type was selected, let's grab it and create a form for it
+			$type = new Typeh();
+			$name = str_replace('_', ' ', $stub);
+			$type->where('name', $name)->get();
+		
+			// if the type was not found return 404
+			if ($type->result_count() != 1)
+				show_404();
+		
+			// if admin allow full editing rights
+			if ($this->tank_auth->is_admin())
+				$can_edit = true;
+			else
+				$can_edit = false;
+		
+			// if allowed in any way to edit,
+			if ($this->input->post() && $can_edit)
+			{
+				$post["id"] = $type->id;
+		
+				// save the stub in case it's changed
+				$old_stub = $type->name;
+		
+				// send the data to database
+				if($type->update_type($this->input->post()))
+				{
+					// green box to tell data is saved
+					set_notice('notice', _('Saved.'));
+				}
+		
+				if ($type->name != $old_stub)
+				{
+					flash_notice('notice', _('Saved.'));
+					redirect('admin/series/manage_types/' . str_replace(' ', '_', $type->name));
+				}
+			}
+		
+			// subtitle
+			$this->viewdata["function_title"] = '<a href="' . site_url("admin/series/manage_types/") . '">' . _('Types') . '</a>';
+			// subsubtitle!
+			$this->viewdata["extra_title"][] = $type->name;
+		
+			// convert the tag information to an array
+			$result = ormer($type);
+		
+			// convert the array to a form
+			$result = tabler($result, TRUE, $can_edit);
+			$data['table'] = $result;
+			$data['type'] = $type;
+		
+			// print out
+			$this->viewdata["main_content_view"] = $this->load->view('admin/series/manage_types.php', $data, TRUE);
+			$this->load->view("admin/default", $this->viewdata);
+		}
+	}
+	
+	function add_tag() 
+	{
+		
+		// only admins are allowed to create tags
+		if (!$this->tank_auth->is_admin())
+		{
+			show_404();
+		}
+		
+		// save the data if POST
+		if ($this->input->post())
+		{
+			$tag = new Tag();
+			if ($tag->add($this->input->post()))
+			{
+				$config['upload_path'] = 'content/cache/';
+				$config['allowed_types'] = 'jpg|png|gif';
+				$this->load->library('upload', $config);
+				$field_name = "thumbnail";
+				if (count($_FILES) > 0 && $this->upload->do_upload($field_name))
+				{
+					$up_data = $this->upload->data();
+					if (!$this->files_model->tag_thumb($tag, $up_data))
+					{
+						log_message("error", "Controller: series.php/add_tag: image failed being added to folder");
+					}
+					if (!unlink($up_data["full_path"]))
+					{
+						log_message('error', 'series.php/add_tag: couldn\'t remove cache file ' . $data["full_path"]);
+						return false;
+					}
+				}
+				flash_notice('notice', 'Added the tag ' . $tag->name . '.');
+				redirect('/admin/series/manage_tags/' . str_replace(' ', '_', $tag->name));
+			}
+		}
+		
+		$tag = new Tag();
+		
+		// set title and subtitle
+		$this->viewdata["function_title"] = '<a href="' . site_url("/admin/series/manage_tags") . '">' . _('Tags') . '</a>';
+		$this->viewdata["extra_title"][] = _('Add New');
+		
+		// transform the Datamapper array to a form
+		$result = ormer($tag);
+		$result = tabler($result, FALSE, TRUE);
+		$data['form_title'] = _('Add New Tag');
+		$data['table'] = $result;
+		
+		// print out
+		$this->viewdata["main_content_view"] = $this->load->view('admin/form', $data, TRUE);
+		$this->load->view("admin/default", $this->viewdata);
+	}
+	
+	function manage_tags($stub = "") {
+		// no tag selected
+		if ($stub == "")
+		{
+			// set subtitle
+			$this->viewdata["function_title"] = _('Tags');
+		
+			// we can use get_iterated on teams
+			$tags = new Tag();
+		
+			// support filtering via search
+			if ($this->input->post())
+			{
+				$tags->ilike('name', $this->input->post('search'));
+				$this->viewdata['extra_title'][] = _('Searching') . " : " . $this->input->post('search');
+			}
+		
+			$tags->order_by('name', 'ASC')->get_iterated();
+			$rows = array();
+			// produce links for each team
+			foreach ($tags as $tag)
+			{
+				$rows[] = array('title' => '<a href="' . site_url('admin/series/manage_tags/' . strtolower(str_replace(' ', '_', $tag->name))) . '">' . $tag->name . '</a>');
+			}
+			// put in a list the teams
+			$data['form_title'] = _('Tags');
+			$data['table'] = tabler($rows, TRUE, FALSE);
+		
+			// print out
+			$this->viewdata["main_content_view"] = $this->load->view('admin/members/users', $data, TRUE);
+			$this->load->view("admin/default", $this->viewdata);
+		}
+		else
+		{
+			// tag was selected, let's grab it and create a form for it
+			$tag = new Tag();
+			$name = str_replace('_', ' ', $stub);
+			$tag->where('name', $name)->get();
+		
+			// if the team was not found return 404
+			if ($tag->result_count() != 1)
+				show_404();
+		
+			// if admin allow full editing rights
+			if ($this->tank_auth->is_admin())
+				$can_edit = true;
+			else
+				$can_edit = false;
+		
+			// if allowed in any way to edit,
+			if ($this->input->post() && $can_edit)
+			{
+				$post["id"] = $tag->id;
+		
+				// save the stub in case it's changed
+		
+				$old_stub = $tag->name;
+		
+				// send the data to database
+				if($tag->update_tag($this->input->post())) 
+				{
+					$config ['upload_path'] = 'content/cache/';
+					$config ['allowed_types'] = 'jpg|png|gif';
+					$this->load->library ( 'upload', $config );
+					$field_name = "thumbnail";
+					if (count ( $_FILES ) > 0 && $this->upload->do_upload ( $field_name )) {
+						$up_data = $this->upload->data ();
+						if (! $this->files_model->tag_thumb ( $tag, $up_data )) {
+							log_message ( "error", "Controller: series.php/add_tag: image failed being added to folder" );
+						}
+						if (! unlink ( $up_data ["full_path"] )) {
+							log_message ( 'error', 'series.php/add_tag: couldn\'t remove cache file ' . $data ["full_path"] );
+							return false;
+						}
+						// green box to tell data is saved
+						set_notice('notice', _('Saved.'));
+					}
+
+				}
+		
+				if ($tag->name != $old_stub)
+				{
+					flash_notice('notice', _('Saved.'));
+					redirect('admin/series/manage_tags/' . str_replace(' ', '_', $tag->name));
+				}
+			}
+		
+		
+			// subtitle
+			$this->viewdata["function_title"] = '<a href="' . site_url("admin/series/manage_tags") . '">' . _('Tags') . '</a>';
+			// subsubtitle!
+			$this->viewdata["extra_title"][] = $tag->name;
+
+			if ($tag->get_thumb())
+				$tag->thumbnail = $tag->get_thumb();
+			// convert the tag information to an array
+			$result = ormer($tag);
+		
+			// convert the array to a form
+			$result = tabler($result, TRUE, $can_edit);
+			$data['table'] = $result;
+			$data['tag'] = $tag;
+		
+			// print out
+			$this->viewdata["main_content_view"] = $this->load->view('admin/series/manage_tags.php', $data, TRUE);
+			$this->load->view("admin/default", $this->viewdata);
+		}
 	}
 
 	function upload()
@@ -425,7 +817,7 @@ class Series extends Admin_Controller
 
 
 	function delete($type, $id = 0)
-	{
+	{	
 		if (!isAjax())
 		{
 			$this->output->set_output(_('You can\'t delete chapters from outside the admin panel through this link.'));
@@ -483,6 +875,20 @@ class Series extends Admin_Controller
 					return false;
 				}
 				$this->output->set_output(json_encode(array('href' => site_url("admin/series/serie/" . $chapter->comic->stub . "/" . $chapter->id))));
+				break;
+			case("tag"):
+				$tag = new Tag();
+				$tag->where('id', $id)->get();
+				$title = $tag->name;
+				if (!$tag->remove_tag())
+				{
+					flash_notice('error', sprintf(_('Failed to delete the tag %s.'), $title));
+					log_message("error", "Controller: series.php/remove: failed tag removal");
+					$this->output->set_output(json_encode(array('href' => site_url("admin/series/manage_tags"))));
+					return false;
+				}
+				flash_notice('notice', 'The tag ' . $tag->name . ' has been removed');
+				$this->output->set_output(json_encode(array('href' => site_url("admin/series/manage_tags"))));
 				break;
 		}
 	}

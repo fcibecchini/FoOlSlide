@@ -1,27 +1,38 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <!DOCTYPE html>
 <html>
-	<head>
-		<title><?php echo $template['title']; ?></title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+<title><?php echo $template['title']; ?></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 		<?php
-		if ($this->config->item('theme_extends') != '' &&
-				$this->config->item('theme_extends') != get_setting('fs_theme_dir') &&
-				$this->config->item('theme_extends_css') === TRUE &&
-				file_exists('content/themes/' . $this->config->item('theme_extends') . '/style.css'))
+		if (isset($metacomic))
 		{
-			echo link_tag('content/themes/' . $this->config->item('theme_extends') . '/style.css?v='.FOOLSLIDE_VERSION);
+			if ($comic->description) echo '<meta name="description" content="'.str_replace('"','',$comic->description).'" />';
+			echo '<meta name="keywords" content="';
+			if (get_setting('fs_theme_comic_keywords')) echo get_setting('fs_theme_comic_keywords').',';
+			if ($comic->parody) echo $comic->parody.','; 
+			echo $comic->name;
+			if ($comic->author) echo ','.$comic->author; 
+			if ($comic->tags)
+				foreach($comic->tags as $key => $value)
+					echo ','.$value->name;
+			echo '" />';
 		}
+		elseif (isset($metahome) && $metapage == 1) echo get_setting('fs_theme_header_code_homepage');
+		
 		if (file_exists('content/themes/' . get_setting('fs_theme_dir') . '/style.css'))
-			echo link_tag('content/themes/' . get_setting('fs_theme_dir') . '/style.css?v='.FOOLSLIDE_VERSION);
+			echo link_tag('content/themes/' . get_setting('fs_theme_dir') . '/style.css');
 		?>
+		<link rel="stylesheet" href="<?php echo site_url() . 'assets/css/font-awesome.min.css?v='.FOOLSLIDE_VERSION ?>">
 		<link rel="sitemap" type="application/xml" title="Sitemap" href="<?php echo site_url() ?>sitemap.xml" />
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo site_url() ?>rss.xml" />
 		<link rel="alternate" type="application/atom+xml" title="Atom" href="<?php echo site_url() ?>atom.xml" />
-		<link rel='index' title='<?php echo get_setting('fs_gen_site_title') ?>' href='<?php echo site_url() ?>' />
+		<link rel='index' title="<?php echo get_setting('fs_gen_site_title') ?>" href="<?php echo site_url() ?>" />
 		<meta name="generator" content="FoOlSlide <?php echo FOOLSLIDE_VERSION ?>" />
 		<script src="<?php echo site_url() . 'assets/js/jquery.js?v='.FOOLSLIDE_VERSION ?>"></script>
 		<script src="<?php echo site_url() . 'assets/js/jquery.plugins.js?v='.FOOLSLIDE_VERSION ?>"></script>
+		
 		<?php if ($this->agent->is_browser('MSIE')) : ?>
 		<script type="text/javascript">
 			jQuery(document).ready(function(){
@@ -48,59 +59,62 @@
 			});
 			});
 		</script>
+		
 		<?php endif; ?>
 		<?php echo get_setting('fs_theme_header_code'); ?>
 	</head>
-	<body class="<?php if (isset($_COOKIE["night_mode"]) && $_COOKIE["night_mode"] == 1)
+<body
+	class="<?php if (isset($_COOKIE["night_mode"]) && $_COOKIE["night_mode"] == 1)
 			echo 'night '; ?>">
-		<div id="wrapper">
-			<?php echo get_setting('fs_theme_preheader_text'); ?>
+	<div id="wrapper">
+			<?php 
+			echo get_setting('fs_theme_preheader_text'); ?>
 			<div id="header">
-				<?php echo get_setting('fs_theme_header_text'); ?>
+				<?php echo get_setting('fs_theme_header_text');?>
+				<div id="title"><a href="<?php echo site_url('') ?>"><i class="fa fa-home"></i><span class="mmmh"> <?php echo get_setting('fs_gen_site_title') ?></span></a></div>
 				<div role="navigation" id="navig">
 					<ul>
-						<li>
-							<a href="<?php echo site_url('') ?>"><?php echo _('Latest releases'); ?></a>
-						</li>
-						<li>
-							<a href="<?php echo site_url('directory') ?>"><?php echo _('Series list'); ?></a>
-						</li>
+						<?php if (get_setting ('fs_gen_back_url')) : ?>
+							<?php echo '<li><a href="'.get_setting('fs_gen_back_url').'"><i class="fa fa-external-link"></i><span class="mh"> '._('Forum').'</span></a></li>';?>
+						<?php endif; ?>
+						<li><a href="<?php echo site_url('tags') ?>"><i class="fa fa-tags"></i><span class="mh"> <?php echo _('Tags'); ?></span></a></li>						
+						<li><a href="<?php echo site_url('most_downloaded') ?>"><i class="fa fa-star-o"></i><span class="mh"> <?php echo _('Most Downloaded'); ?></span></a></li>						
+						<li><a href="<?php echo site_url('authors') ?>"><i class="fa fa-list"></i><span class="mh"> <?php echo _('Authors'); ?></span></a></li>						
+						<li><a href="<?php echo site_url('parodies') ?>"><i class="fa fa-th-list"></i><span class="mh"> <?php echo _('Parodies'); ?></span></a></li>						
+						<?php if (get_setting ('fs_theme_custom_link')) : ?><?php echo '<li>'.get_setting('fs_theme_custom_link').'</li>';?><?php endif; ?>
 						<li style="">
-							<?php
+						<?php
 							echo form_open("search/");
 							echo form_input(array('name' => 'search', 'placeholder' => _('To search series, type and hit enter'), 'id' => 'searchbox', 'class' => 'fright'));
 							echo form_close();
-							?>
+						?>
 						</li>
-						<li>
-							<a style="padding:0;" href="<?php echo site_url('feeds/rss') ?>"><img height="28" width="28" style="position:relative; top:1px;" src="<?php echo site_url() . 'content/themes/default/images/feed-icon-28x28.png' ?>" /></a>
-						</li>
-
 						<div class="clearer"></div>
 					</ul>
 				</div>
-
-				<a href="<?php echo site_url('') ?>"><div id="title"><?php echo get_setting('fs_gen_site_title') ?></div></a>
-				<?php if (get_setting('fs_gen_back_url'))
-					echo'<div class="home_url"><a href="' . get_setting('fs_gen_back_url') . '">' . _("Go back to site") . ' &crarr;</a></div>'; ?>
-				<div class="clearer"></div>
+			<div class="clearer"></div>
 			</div>
 
 			<article id="content">
-
 				<?php
 				if (!isset($is_reader) || !$is_reader)
 					echo '<div class="panel">';
+
+				echo '<div class="row">';
 
 				if (get_setting('fs_ads_top_banner') && get_setting('fs_ads_top_banner_active') && !get_setting('fs_ads_top_banner_reload'))
 					echo '<div class="ads banner" id="ads_top_banner">' . get_setting('fs_ads_top_banner') . '</div>';
 
 				if (get_setting('fs_ads_top_banner') && get_setting('fs_ads_top_banner_active') && get_setting('fs_ads_top_banner_reload'))
 					echo '<div class="ads iframe banner" id="ads_top_banner"><iframe marginheight="0" marginwidth="0" frameborder="0" src="' . site_url() . 'content/ads/ads_top.html' . '"></iframe></div>';
-
-				if (isset($show_sidebar))
+				
+				if (isset($show_sidebar)) 
+				{
+					echo '<ul class="sidebar sm-col-12 md-col-4">';
 					echo get_sidebar();
-
+					if(isset($show_searchtags)) echo get_searchtags_widget();
+					echo '</ul>';
+				}
 				if (isset($is_latest) && $is_latest)
 				{
 					$loaded_slideshow = FALSE;
@@ -123,26 +137,27 @@
 									});
 								</script>
 								<style>
-									.nivoSlider {
-										position:relative;
-										width:680px !important; /* Change this to your images width */
-										height:280px !important; /* Change this to your images height */
-										margin-bottom:10px;
-										overflow:hidden;
-										margin-left:1px;
-									}
-									.nivoSlider img {
-										position:absolute;
-										top:0px;
-										left:0px;
-										display:none;
-										width:690px !important;
-									}
-
-									.nivoSlider a {
-										border:0;
-										display:block;
-									}
+								.nivoSlider {
+									position: relative;
+									width: 680px !important; /* Change this to your images width */
+									height: 280px !important; /* Change this to your images height */
+									margin-bottom: 10px;
+									overflow: hidden;
+									margin-left: 1px;
+								}
+								
+								.nivoSlider img {
+									position: absolute;
+									top: 0px;
+									left: 0px;
+									display: none;
+									width: 690px !important;
+								}
+								
+								.nivoSlider a {
+									border: 0;
+									display: block;
+								}
 								</style>
 								<?php
 								echo ' <div class="slider-wrapper theme-default">
@@ -183,26 +198,24 @@
 				if (get_setting('fs_ads_bottom_banner') && get_setting('fs_ads_bottom_banner_active') && get_setting('fs_ads_bottom_banner_reload'))
 					echo '<div class="ads iframe banner" id="ads_bottom_banner"><iframe marginheight="0" marginwidth="0" frameborder="0" src="' . site_url() . 'content/ads/ads_bottom.html' . '"></iframe></div>';
 
+				echo '</div>';
+
 				if (!isset($is_reader) || !$is_reader)
 					echo '</div>';
 				?>
 
 			</article>
 
-		</div>
-		<div id="footer">
-			<div class="text">
-				<div>
+	</div>
+	<div id="footer">
+		<div class="text">
+			<div>
 					<?php echo get_setting('fs_gen_footer_text'); ?>
 				</div>
-				<div class="cp_link">
-					<a href="http://www.foolz.us/info/foolslide/" target="_blank"><img src="<?php echo site_url() . 'content/themes/' . get_setting('fs_theme_dir') .'/images/logo_footer.png' ?>" /></a>
-				</div>
-			</div>
 		</div>
+	</div>
 
-		<div id="messages">
-		</div>
-	</body>
+	<div id="messages"></div>
+</body>
 	<?php echo get_setting('fs_theme_footer_code'); ?>
 </html>

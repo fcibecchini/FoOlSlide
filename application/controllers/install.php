@@ -58,7 +58,7 @@ class Install extends Install_Controller
 				'placeholder' => 'required',
 				'required' => 'required',
 				'value' => 'localhost',
-				'help' => _('The hostname of the server hosting the database. 99.8%% of times is localhost')
+				'help' => _('The hostname of the server hosting the database. 99.8% of times is localhost')
 			)
 		);
 
@@ -280,7 +280,9 @@ class Install extends Install_Controller
 			mkdir('content/logs');
 		if (!is_dir('content/comics'))
 			mkdir('content/comics');
-
+		if (!is_dir('content/tags'))
+			mkdir('content/tags');
+		
 		// if install can't make that config.php file, tell the user to do it manually
 		if ($manual_config)
 		{

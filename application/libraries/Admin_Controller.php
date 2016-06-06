@@ -139,8 +139,7 @@ class Admin_Controller extends MY_Controller
 			"icon" => "comments",
 			"content" => array(
 				"http://archive.foolz.us/dev/" => array("level" => "member", "name" => _("Developer Community"), "icon" => "comments-o"),
-				//"http://chocolatkey.com" => array("level" => "member", "name" => _("Developer Site"), "icon" => "building"),
-				//"http://github.com/chocolatkey/" => array("level" => "member", "name" => _("Chocolatkey Github"), "icon" => "github"),
+				"http://github.com/fcibecchini/FoOlSlide/" => array("level" => "member", "name" => _("Developer Github"), "icon" => "github"),
 			)
 		);
 		return $sidebar;

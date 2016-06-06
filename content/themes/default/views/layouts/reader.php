@@ -110,7 +110,7 @@
 				
 				if (isset($show_sidebar)) 
 				{
-					echo '<ul class="sidebar sm-col-12 md-col-4">';
+					echo '<ul class="sidebar">';
 					echo get_sidebar();
 					if(isset($show_searchtags)) echo get_searchtags_widget();
 					echo '</ul>';

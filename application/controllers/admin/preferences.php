@@ -546,7 +546,12 @@ class Preferences extends Admin_Controller
                         'name' => 'fs_dl_volume_enabled',
                         'preferences' => 'fs_dl',
                         'text' => _('Enable Volume Downloads'),
-                    )
+                    ),
+                	array(
+                		'name' => 'fs_dl_forum_enabled',
+                		'preferences' => 'fs_dl',
+                		'text' => _('Enable Forum Downloads'),
+                	)
                 ),
 				'help' => _('Note: Direct downloads usually increase bandwidth usage by one-third. The issue is whether you have enough space to keep both images and ZIP archives. FoOlSlide tries to avoid this problem by using on-the-fly ZIP compression and caching.')
 			)

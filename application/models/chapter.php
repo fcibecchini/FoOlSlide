@@ -988,14 +988,18 @@ class Chapter extends DataMapper
 	 */
 	public function download_url($text = NULL, $class = "")
 	{
-		if (get_setting('fs_dl_enabled'))
+		if (get_setting('fs_dl_enabled') && !get_setting('fs_dl_forum_enabled'))
 			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->download_href() . '"><i class="fa fa-download"></i></a></div>';
+		elseif (get_setting('fs_dl_enabled') && get_setting('fs_dl_forum_enabled'))
+			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->comic->urlforum . '" target="_blank"><i class="fa fa-download"></i></a></div>';		
 	}
 
 	public function download_volume_url($text = NULL, $class = "")
 	{
-		if (get_setting('fs_dl_enabled') && get_setting('fs_dl_volume_enabled'))
+		if (get_setting('fs_dl_enabled') && get_setting('fs_dl_volume_enabled') && !get_setting('fs_dl_forum_enabled'))
 			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->download_volume_href() . '"><i class="fa fa-download"></i></a></div>';
+		elseif (get_setting('fs_dl_enabled') && get_setting('fs_dl_volume_enabled') && get_setting('fs_dl_forum_enabled'))
+			return '<div class="icon_wrapper ' . $class . '"><a href="' . $this->comic->urlforum . '" target="_blank"><i class="fa fa-download"></i></a></div>';		
 	}
 
 

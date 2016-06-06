@@ -1,4 +1,4 @@
-FoOlSlide
+FoOlSlide Improved
 =========
 
 __THIS IS AN UNOFFICIAL PROJECT__

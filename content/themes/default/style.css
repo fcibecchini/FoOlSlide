@@ -48,7 +48,7 @@ input[type="text"]{
 	webkit-border-radius: 3px;
 	width: 190px;
 }
-#searchbox{
+#searchbox, #menusearchbox{
 	background: #f9f9f9;
 	background: linear-gradient(top,rgba(249,249,249,1) 0%,rgba(255,255,255,1) 74%);
 	background: -moz-linear-gradient(top,rgba(249,249,249,1) 0%,rgba(255,255,255,1) 74%);
@@ -60,6 +60,29 @@ input[type="text"]{
 	padding-left: 4px;
 	text-align: left;
 	width: 270px;
+}
+input[class="menu"]{
+	font-size: 16px;
+}
+#menusearchbox{
+	width: 100%;
+	box-sizing: border-box;
+	height: 30px;
+	margin-top: -2px;
+}
+.list .attribute-row {
+	display: block;
+  	font-weight: bold;
+  	color: #fff;
+	padding: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	background-color: #777;
+	border: 1px solid #CCC;
+	margin-bottom: 5px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 .center{
 	text-align: center;

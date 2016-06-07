@@ -22,9 +22,9 @@
 		elseif (isset($metahome) && $metapage == 1) echo get_setting('fs_theme_header_code_homepage');
 		
 		if (file_exists('content/themes/' . get_setting('fs_theme_dir') . '/style.css'))
-			echo link_tag('content/themes/' . get_setting('fs_theme_dir') . '/style.css');
-		?>
-		<link rel="stylesheet" href="<?php echo site_url() . 'assets/css/font-awesome.min.css?v='.FOOLSLIDE_VERSION ?>">
+			echo link_tag('content/themes/' . get_setting('fs_theme_dir') . '/style.css?v='.FOOLSLIDE_VERSION);
+		echo link_tag('assets/css/font-awesome.min.css?v='.FOOLSLIDE_VERSION);
+		?>	
 		<link rel="sitemap" type="application/xml" title="Sitemap" href="<?php echo site_url() ?>sitemap.xml" />
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo site_url() ?>rss.xml" />
 		<link rel="alternate" type="application/atom+xml" title="Atom" href="<?php echo site_url() ?>atom.xml" />

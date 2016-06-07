@@ -45,7 +45,7 @@ define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 |
 */
 
-define('FOOLSLIDE_VERSION', '1.8.5');
+define('FOOLSLIDE_VERSION', '1.8.6');
 
 
 /* End of file constants.php */

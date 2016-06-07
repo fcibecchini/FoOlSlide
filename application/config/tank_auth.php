@@ -7,8 +7,8 @@
 | These details are used in emails sent by authentication library.
 |--------------------------------------------------------------------------
 */
-$config['website_name'] = 'Hentai Fantasy';
-$config['webmaster_email'] = 'webmaster@hentaifantasy.it';
+$config['website_name'] = 'FoOlSlide';
+$config['webmaster_email'] = 'foolslide@yoursite.com';
 
 /*
 |--------------------------------------------------------------------------

@@ -666,7 +666,7 @@ if (!function_exists('prevnext'))
 				if ($item->paged->has_previous)
 				{
 					$echo .= '<div class="prev"><a class="gbutton fleft" href="' . site_url($base_url . 1) . '">««</a></div>';
-					$echo .= '<div class="prev"><a class="gbutton fleft" href="' . site_url($base_url . $item->paged->previous_page) . '">« ' . _('Prev') . '</a></div>';
+					$echo .= '<div class="prev"><a class="gbutton fleft" href="' . site_url($base_url . $item->paged->previous_page) . '">« </a></div>';
 				}
 				
 				if ($item->paged->current_page < 3)
@@ -699,7 +699,7 @@ if (!function_exists('prevnext'))
 				if ($item->paged->has_next)
 				{
 					$echo .= '<div class="next"><a class="gbutton fright" href="' . site_url($base_url . $item->paged->total_pages) . '">»»</a></div>';
-					$echo .= '<div class="next"><a class="gbutton fright" href="' . site_url($base_url . $item->paged->next_page) . '">' . _('Next') . ' »</a></div>';
+					$echo .= '<div class="next"><a class="gbutton fright" href="' . site_url($base_url . $item->paged->next_page) . '"> »</a></div>';
 				}
 			
 				$echo .= '<div class="clearer"></div></div>';

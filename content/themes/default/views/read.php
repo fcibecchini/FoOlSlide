@@ -8,17 +8,8 @@ if (!defined('BASEPATH'))
 		<div>
 			<div class="topbar_left">
 				<h1 class="tbtitle dnone"><?php echo $comic->url() ?> :: <?php echo $chapter->url() ?></h1>
-				<div class="tbtitle dropdown_parent"><div class="text"><?php echo $comic->url() ?></div>
-					<?php
-					/* echo '<ul class="dropdown">';
-					foreach ($comics->all as $co)
-					{
-						echo '<li>' . $co->url() . '</li>';
-					}
-					echo '</ul>'
-					*/?> 
-				</div>
-				<div class="tbtitle dropdown_parent"><div class="text"><?php echo '<a href="' . $chapter->href() . '">' . ((strlen($chapter->title()) > 58) ? (substr($chapter->title(), 0, 50) . '...') : $chapter->title()) . '</a>' ?> ⤵</div>
+				<div class="tbtitle dropdown_parent"><div class="text_only"><?php echo $comic->url() ?></div></div>
+				<div class="tbtitle dropdown_parent mmh"><div class="text"><?php echo '<a href="' . $chapter->href() . '">' . ((strlen($chapter->title()) > 58) ? (substr($chapter->title(), 0, 50) . '...') : $chapter->title()) . '</a>' ?> ⤵</div>
 					<?php
 					echo '<ul class="dropdown">';
 					foreach ($chapters->all as $ch)
@@ -28,10 +19,10 @@ if (!defined('BASEPATH'))
 					echo '</ul>'
 					?>
 				</div>
-				<div class="tbtitle icon_wrapper dnone" ><img class="icon off" src="<?php echo glyphish(181); ?>" /><img class="icon on" src="<?php echo glyphish(181, TRUE); ?>" /></div>
+				<?php echo $chapter->download_url(NULL, "fleft larg"); ?>
 			</div>
 			<div class="topbar_right">
-				<div class="tbtitle dropdown_parent dropdown_right"><div class="text"><?php echo count($pages); ?> ⤵</div>
+				<div class="tbtitle dropdown_parent dropdown_right mmh"><div class="text"><?php echo count($pages); ?> ⤵</div>
 					<?php
 					$url = $chapter->href();
 					echo '<ul class="dropdown" style="width:90px;">';
@@ -43,8 +34,8 @@ if (!defined('BASEPATH'))
 					?>
 				</div>
 
-				<div class="divider"></div>
-				<span class="numbers">
+				<div class="divider mmh"></div>
+				<span class="numbers mmh">
 					<?php
 					//for ($i = (($val = $current_page - 3) <= 0)?(1):$val; $i <= count($pages) && $i < $current_page + 3; $i++) {
 					for ($i = (($val = $current_page + 2) >= count($pages)) ? (count($pages)) : $val; $i > 0 && $i > $current_page - 3; $i--)

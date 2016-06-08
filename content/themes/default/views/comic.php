@@ -3,7 +3,7 @@
 
         <div class="large comic">
             <h1 class="title">
-                <?php echo $comic->comments('fleft') . $comic->name; ?>                    
+                <?php echo /* $comic->comments('fleft') . */$comic->name; ?>                    
             </h1>
             <?php if ($comic->get_thumb()): ?>
 			<div class="thumbnail">

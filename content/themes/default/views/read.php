@@ -8,8 +8,8 @@ if (!defined('BASEPATH'))
 		<div>
 			<div class="topbar_left">
 				<h1 class="tbtitle dnone"><?php echo $comic->url() ?> :: <?php echo $chapter->url() ?></h1>
-				<div class="tbtitle dropdown_parent"><div class="text_only"><?php echo '<a href="' . $comic->href() . '">' . ((strlen($comic->title()) > 58) ? (substr($comic->title(), 0, 40) . '...') : $comic->title()) . '</a>' ?></div></div>
-				<div class="tbtitle dropdown_parent mmh"><div class="text"><?php echo '<a href="' . $chapter->href() . '">' . ((strlen($chapter->title()) > 58) ? (substr($chapter->title(), 0, 40) . '...') : $chapter->title()) . '</a>' ?> ⤵</div>
+				<div class="tbtitle dropdown_parent"><div class="text_only"><?php echo '<a href="' . $comic->href() . '">' . ((strlen($comic->title()) > 40) ? (substr($comic->title(), 0, 40) . '...') : $comic->title()) . '</a>' ?></div></div>
+				<div class="tbtitle dropdown_parent mmh"><div class="text"><?php echo '<a href="' . $chapter->href() . '">' . ((strlen($chapter->title()) > 40) ? (substr($chapter->title(), 0, 40) . '...') : $chapter->title()) . '</a>' ?> ⤵</div>
 					<?php
 					echo '<ul class="dropdown">';
 					foreach ($chapters->all as $ch)
